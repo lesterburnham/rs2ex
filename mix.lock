@@ -1,0 +1,4 @@
+%{
+  "isaac": {:hex, :isaac, "0.0.1", "791111b654941ce32b1f599be71f60512c997241242c5ed55eddbed8abb030ef", [:mix], [], "hexpm", "e43c136931b8003def7cf8a9eaa49e9713ab91a76729c667591e0a4c03511fa1"},
+  "ranch": {:hex, :ranch, "1.8.0", "8c7a100a139fd57f17327b6413e4167ac559fbc04ca7448e9be9057311597a1d", [:make, :rebar3], [], "hexpm", "49fbcfd3682fab1f5d109351b61257676da1a2fdbe295904176d5e521a2ddfe5"},
+}
