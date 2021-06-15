@@ -48,7 +48,7 @@ defmodule Rs2ex.Handler do
   def start_link(ref, socket, transport, _opts) do
     peername = stringify_peername(socket)
     pid = :proc_lib.spawn_link(__MODULE__, :init, [ref, socket, transport])
-    Logger.info "accepted connection from: #{peername}"
+    Logger.info("accepted connection from: #{peername}")
     {:ok, pid}
   end
 
