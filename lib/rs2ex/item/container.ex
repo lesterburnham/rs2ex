@@ -19,7 +19,7 @@ defmodule Rs2ex.Item.Container do
     end
   end
 
-  def swap(items, from_slot, to_slot) do
+  def swap(items, from_slot, to_slot, _opts \\ %{}) do
     from = Enum.at(items, from_slot)
     to = Enum.at(items, to_slot)
 

@@ -8,14 +8,18 @@ defmodule Rs2ex.Item.ContainerServer do
     Agent.start_link(fn -> %__MODULE__{always_stack: false, capacity: 28} end, name: __MODULE__)
   end
 
-  def add_item(id, quantity) do
+  def add_item(id, quantity), do: container_function(&Container.add_item/4, binding())
+
+  def swap(from_slot, to_slot), do: container_function(&Container.swap/4, binding())
+
+  defp container_function(fun, args) do
     Agent.get_and_update(__MODULE__, fn state ->
-      {_, items} =
-        ret =
-        Container.add_item(state.items, id, quantity, %{
-          always_stack: state.always_stack,
-          capacity: state.capacity
-        })
+      opts = %{
+        always_stack: state.always_stack,
+        capacity: state.capacity
+      }
+
+      {_, items} = ret = apply(fun, [state.items] ++ Keyword.values(args) ++ [opts])
 
       {ret, %__MODULE__{state | items: items}}
     end)
