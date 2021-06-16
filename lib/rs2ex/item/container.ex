@@ -20,16 +20,16 @@ defmodule Rs2ex.Item.Container do
   end
 
   def swap(items, from_slot, to_slot, _opts \\ %{}) do
-    from = Enum.at(items, from_slot)
-    to = Enum.at(items, to_slot)
-
-    if Enum.any?([from, to], &is_nil/1) do
-      {:error, items}
-    else
+    with {from, from_index} <-
+           Enum.with_index(items) |> Enum.find(fn {item, _index} -> item.slot == from_slot end),
+         {to, to_index} <-
+           Enum.with_index(items) |> Enum.find(fn {item, _index} -> item.slot == to_slot end) do
       {:ok,
        items
-       |> List.replace_at(from_slot, %Item{from | slot: to_slot})
-       |> List.replace_at(to_slot, %Item{to | slot: from_slot})}
+       |> List.replace_at(from_index, %Item{from | slot: to_slot})
+       |> List.replace_at(to_index, %Item{to | slot: from_slot})}
+    else
+      nil -> {:error, items}
     end
   end
 

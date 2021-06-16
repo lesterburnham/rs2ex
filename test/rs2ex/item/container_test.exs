@@ -95,8 +95,8 @@ defmodule Rs2ex.Item.ContainerTest do
 
   test "swapping item slots" do
     items = [
-      %Rs2ex.Item{id: 1265, quantity: 1, slot: 0},
-      %Rs2ex.Item{id: 1267, quantity: 1, slot: 1},
+      %Rs2ex.Item{id: 1265, quantity: 1, slot: 1},
+      %Rs2ex.Item{id: 1267, quantity: 1, slot: 0},
       %Rs2ex.Item{id: 1269, quantity: 1, slot: 2}
     ]
 
@@ -104,8 +104,8 @@ defmodule Rs2ex.Item.ContainerTest do
     assert Container.swap(items, 1, 2) ==
              {:ok,
               [
-                %Rs2ex.Item{id: 1265, quantity: 1, slot: 0},
-                %Rs2ex.Item{id: 1267, quantity: 1, slot: 2},
+                %Rs2ex.Item{id: 1265, quantity: 1, slot: 2},
+                %Rs2ex.Item{id: 1267, quantity: 1, slot: 0},
                 %Rs2ex.Item{id: 1269, quantity: 1, slot: 1}
               ]}
 
