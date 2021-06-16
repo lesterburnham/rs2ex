@@ -7,7 +7,14 @@ defmodule Rs2ex.MixProject do
       version: "0.1.0",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -23,7 +30,10 @@ defmodule Rs2ex.MixProject do
   defp deps do
     [
       {:ranch, "~> 1.8"},
-      {:isaac, "~> 0.0.1"}
+      {:isaac, "~> 0.0.1"},
+      {:exqlite, "~> 0.6.1"},
+      {:excoveralls, "~> 0.10", only: :test},
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
     ]
   end
 end
