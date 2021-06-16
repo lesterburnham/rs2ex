@@ -31,4 +31,9 @@ defmodule Rs2ex.CommandEncoder do
     |> add_byte_a(if top, do: 0, else: 1)
     |> add_str(option)
   end
+
+  def update_weight(weight) do
+    %Packet{opcode: 240}
+    |> add_short(weight)
+  end
 end

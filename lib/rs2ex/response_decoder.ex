@@ -21,15 +21,20 @@ defmodule Rs2ex.ResponseDecoder do
     Logger.info("enter new region")
   end
 
+  # chat message
+  def decode(%Packet{opcode: 4}) do
+    Logger.error("chat message")
+  end
+
   # mouse click
   def decode(%Packet{opcode: 241} = packet) do
     {raw, _packet} = packet |> read_int()
 
-    time = (raw >>> 20) &&& 4095
-    button = (raw >>> 19) &&& 1
+    time = raw >>> 20 &&& 4095
+    button = raw >>> 19 &&& 1
     coords = raw &&& 0x7FFFF
     y = trunc(coords / 765)
-    x = trunc(coords - (y * 765))
+    x = trunc(coords - y * 765)
 
     Logger.debug("mouse click x: #{x}, y: #{y}, button: #{button}, time: #{time}")
   end
