@@ -116,6 +116,33 @@ defmodule Rs2ex.Item.ContainerTest do
     assert Container.swap(items, 1, 3) == {:error, items}
   end
 
+  test "setting item slots" do
+    items = [
+      %Rs2ex.Item{id: 1265, quantity: 1, slot: 1},
+      %Rs2ex.Item{id: 1267, quantity: 1, slot: 0},
+      %Rs2ex.Item{id: 1269, quantity: 1, slot: 2}
+    ]
+
+    # normal case
+    assert Container.set(items, 1, 4151, 1) ==
+             {:ok,
+              [
+                %Rs2ex.Item{id: 4151, quantity: 1, slot: 1},
+                %Rs2ex.Item{id: 1267, quantity: 1, slot: 0},
+                %Rs2ex.Item{id: 1269, quantity: 1, slot: 2}
+              ]}
+
+    # update quantity
+    assert Container.set([%Rs2ex.Item{id: 995, quantity: 1, slot: 0}], 0, 995, 100) ==
+             {:ok,
+              [
+                %Rs2ex.Item{id: 995, quantity: 100, slot: 0}
+              ]}
+
+    # invalid slot
+    assert Container.set(items, 10, 4151, 1) == {:error, items}
+  end
+
   test "getting total item quantity of id" do
     # stackable items
     stackable_items = [

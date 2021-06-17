@@ -12,6 +12,8 @@ defmodule Rs2ex.Item.ContainerServer do
 
   def swap(from_slot, to_slot), do: container_function(&Container.swap/4, binding())
 
+  def set(slot, id, quantity), do: container_function(&Container.set/5, binding())
+
   defp container_function(fun, args) do
     Agent.get_and_update(__MODULE__, fn state ->
       opts = %{

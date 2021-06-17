@@ -33,6 +33,26 @@ defmodule Rs2ex.Item.Container do
     end
   end
 
+  def set(items, slot, id, quantity, _opts \\ %{}) do
+    with {item, item_index} <-
+           Enum.with_index(items) |> Enum.find(fn {item, _index} -> item.slot == slot end) do
+      {:ok, items |> List.replace_at(item_index, %Item{item | id: id, quantity: quantity})}
+    else
+      nil -> {:error, items}
+    end
+  end
+
+  def insert(items, from_slot, to_slot, _opts \\ %{}) do
+    # todo
+    #
+    # recursively swap item with its neighbor (forward or backward) until
+    # item is placed into correct to_slot
+  end
+
+  def remove(items, preferred_slot, id, quantity, %{always_stack: always_stack} = opts) do
+    # todo
+  end
+
   def total_quantity_of_id(items, id) do
     {_, quantity} =
       items
@@ -47,10 +67,7 @@ defmodule Rs2ex.Item.Container do
     quantity
   end
 
-  # remove
-  # insert
-  # set
-  # listeners
+  # todo listeners
 
   defp add_stackable_item({item, index}, items, _id, quantity, _) do
     if item.quantity + quantity > @max_quantity do
@@ -82,11 +99,6 @@ defmodule Rs2ex.Item.Container do
     end)
   end
 
-  # list_a = sort all of the items
-  # lost_b = get a list of logs
-  # take(quantity) from list_b
-  # subtract list_b from list_a
-
   defp get_free_slots(items, %{capacity: capacity}) do
     all_slots = Enum.into(0..(capacity - 1), [])
     all_slots -- used_slots(items)
@@ -95,8 +107,6 @@ defmodule Rs2ex.Item.Container do
   defp used_slots(items) do
     Enum.map(items, fn item -> item.slot end)
   end
-
-  # set_item, delete existing and then add new one
 
   defp used_slot_count(items) do
     items |> Enum.count()
