@@ -19,17 +19,39 @@ defmodule Rs2ex.Item.Container do
     end
   end
 
-  def swap(items, from_slot, to_slot, _opts \\ %{}) do
-    with {from, from_index} <-
-           Enum.with_index(items) |> Enum.find(fn {item, _index} -> item.slot == from_slot end),
-         {to, to_index} <-
-           Enum.with_index(items) |> Enum.find(fn {item, _index} -> item.slot == to_slot end) do
-      {:ok,
-       items
-       |> List.replace_at(from_index, %Item{from | slot: to_slot})
-       |> List.replace_at(to_index, %Item{to | slot: from_slot})}
+  def swap(items, from_slot, to_slot, %{capacity: capacity}) do
+    if Enum.all?([from_slot, to_slot], &slot_in_range(&1, capacity)) do
+      with {from, from_index} <- get_item_at_slot(items, from_slot),
+           {to, to_index} <- get_item_at_slot(items, to_slot) do
+        {:ok,
+         items
+         |> replace_item_at_slot(from_index, from, to_slot)
+         |> replace_item_at_slot(to_index, to, from_slot)}
+      else
+        {nil, nil} ->
+          {:error, items}
+      end
     else
-      nil -> {:error, items}
+      {:error, items}
+    end
+  end
+
+  defp slot_in_range(slot, capacity) when slot in 0..(capacity - 1), do: true
+  defp slot_in_range(_, _), do: false
+
+  defp replace_item_at_slot(items, nil, _, _), do: items
+
+  defp replace_item_at_slot(items, index, item, slot) do
+    List.replace_at(items, index, %Item{item | slot: slot})
+  end
+
+  defp get_item_at_slot(items, slot) do
+    case Enum.with_index(items) |> Enum.find(fn {item, _index} -> item.slot == slot end) do
+      {item, index} ->
+        {item, index}
+
+      _ ->
+        {nil, nil}
     end
   end
 
@@ -42,14 +64,14 @@ defmodule Rs2ex.Item.Container do
     end
   end
 
-  def insert(items, from_slot, to_slot, _opts \\ %{}) do
+  def insert(_items, _from_slot, _to_slot, _opts \\ %{}) do
     # todo
     #
     # recursively swap item with its neighbor (forward or backward) until
     # item is placed into correct to_slot
   end
 
-  def remove(items, preferred_slot, id, quantity, %{always_stack: always_stack} = opts) do
+  def remove(_items, _preferred_slot, _id, _quantity, %{always_stack: _always_stack} = _opts) do
     # todo
   end
 

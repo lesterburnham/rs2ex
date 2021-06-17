@@ -100,8 +100,10 @@ defmodule Rs2ex.Item.ContainerTest do
       %Rs2ex.Item{id: 1269, quantity: 1, slot: 2}
     ]
 
+    opts = %{capacity: 4, always_stack: false}
+
     # normal case
-    assert Container.swap(items, 1, 2) ==
+    assert Container.swap(items, 1, 2, opts) ==
              {:ok,
               [
                 %Rs2ex.Item{id: 1265, quantity: 1, slot: 2},
@@ -109,11 +111,17 @@ defmodule Rs2ex.Item.ContainerTest do
                 %Rs2ex.Item{id: 1269, quantity: 1, slot: 1}
               ]}
 
-    # invalid slot
-    assert Container.swap(items, 1, 10) == {:error, items}
+    # swap to empty slot
+    assert Container.swap(items, 1, 3, opts) ==
+             {:ok,
+              [
+                %Rs2ex.Item{id: 1265, quantity: 1, slot: 3},
+                %Rs2ex.Item{id: 1267, quantity: 1, slot: 0},
+                %Rs2ex.Item{id: 1269, quantity: 1, slot: 2}
+              ]}
 
-    # slot missing
-    assert Container.swap(items, 1, 3) == {:error, items}
+    # invalid slot
+    assert Container.swap(items, 1, 10, opts) == {:error, items}
   end
 
   test "setting item slots" do
