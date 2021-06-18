@@ -4,7 +4,8 @@ defmodule Rs2ex.Item.Container do
 
   @max_quantity 2_147_483_647
 
-  def add_item(items, id, quantity, %{always_stack: always_stack, capacity: _capacity} = opts) do
+  def add_item(items, id, quantity, %{always_stack: always_stack, capacity: _capacity} = opts)
+      when quantity > 0 do
     if always_stack || stackable_item?(id) do
       items
       |> Enum.with_index()
@@ -18,6 +19,8 @@ defmodule Rs2ex.Item.Container do
       end
     end
   end
+
+  def add_item(items, _id, _quantity, _opts), do: {:error, items}
 
   def swap(items, from_slot, to_slot, %{capacity: capacity}) do
     if Enum.all?([from_slot, to_slot], &slot_in_range(&1, capacity)) do
@@ -61,11 +64,17 @@ defmodule Rs2ex.Item.Container do
     end
   end
 
+  def has_room_for?(_items) do
+  end
+
   def insert(_items, _from_slot, _to_slot, _opts \\ %{}) do
     # todo
     #
     # recursively swap item with its neighbor (forward or backward) until
     # item is placed into correct to_slot
+
+
+    
   end
 
   def remove(_items, _preferred_slot, _id, _quantity, %{always_stack: _always_stack} = _opts) do

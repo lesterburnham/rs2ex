@@ -91,6 +91,12 @@ defmodule Rs2ex.Item.ContainerTest do
 
     # adding too many for the remaining slots
     assert Container.add_item(partial_container, 4151, 3, opts) == {:full, partial_container}
+
+    # quantity must be greater than 0
+    assert Container.add_item([], 4151, 0, %{capacity: 4, always_stack: true}) == {:error, []}
+
+    assert Container.add_item([%Rs2ex.Item{id: 995, quantity: 100, slot: 0}], 995, 0, opts) ==
+             {:error, [%Rs2ex.Item{id: 995, quantity: 100, slot: 0}]}
   end
 
   test "swapping item slots" do
