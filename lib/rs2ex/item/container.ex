@@ -21,16 +21,13 @@ defmodule Rs2ex.Item.Container do
 
   def swap(items, from_slot, to_slot, %{capacity: capacity}) do
     if Enum.all?([from_slot, to_slot], &slot_in_range(&1, capacity)) do
-      with {from, from_index} <- get_item_at_slot(items, from_slot),
-           {to, to_index} <- get_item_at_slot(items, to_slot) do
-        {:ok,
-         items
-         |> replace_item_at_slot(from_index, from, to_slot)
-         |> replace_item_at_slot(to_index, to, from_slot)}
-      else
-        {nil, nil} ->
-          {:error, items}
-      end
+      {from, from_index} = get_item_at_slot(items, from_slot)
+      {to, to_index} = get_item_at_slot(items, to_slot)
+
+      {:ok,
+       items
+       |> replace_item_at_slot(from_index, from, to_slot)
+       |> replace_item_at_slot(to_index, to, from_slot)}
     else
       {:error, items}
     end

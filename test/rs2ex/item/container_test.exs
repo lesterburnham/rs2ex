@@ -120,6 +120,9 @@ defmodule Rs2ex.Item.ContainerTest do
                 %Rs2ex.Item{id: 1269, quantity: 1, slot: 2}
               ]}
 
+    # swap empty slot to empty slot
+    assert Container.swap([], 1, 2, opts) == {:ok, []}
+
     # invalid slot
     assert Container.swap(items, 1, 10, opts) == {:error, items}
   end
