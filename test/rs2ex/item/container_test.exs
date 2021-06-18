@@ -195,7 +195,7 @@ defmodule Rs2ex.Item.ContainerTest do
       %Rs2ex.Item{id: 1271, quantity: 1, slot: 3}
     ]
 
-    opts = %{capacity: 4, always_stack: false}
+    opts = %{capacity: 10, always_stack: false}
 
     # insert to a higher slot
     assert Container.insert(items, 0, 2, opts) == [
@@ -211,6 +211,14 @@ defmodule Rs2ex.Item.ContainerTest do
              %Rs2ex.Item{id: 1271, quantity: 1, slot: 1},
              %Rs2ex.Item{id: 1267, quantity: 1, slot: 2},
              %Rs2ex.Item{id: 1269, quantity: 1, slot: 3}
+           ]
+
+    # insert to an empty slot
+    assert Container.insert(items, 1, 7, opts) == [
+             %Rs2ex.Item{id: 1265, quantity: 1, slot: 0},
+             %Rs2ex.Item{id: 1269, quantity: 1, slot: 1},
+             %Rs2ex.Item{id: 1271, quantity: 1, slot: 2},
+             %Rs2ex.Item{id: 1267, quantity: 1, slot: 3}
            ]
   end
 end
