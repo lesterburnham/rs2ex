@@ -8,6 +8,9 @@ defmodule Rs2ex.Item.ContainerServer do
     Agent.start_link(fn -> %__MODULE__{always_stack: false, capacity: 28} end, name: __MODULE__)
   end
 
+  # if we add pid to this we'll need to make sure the args uses
+  # Keyword.drop to remove 'pid' from the container_function calls
+
   def add_item(id, quantity), do: container_function(&Container.add_item/4, binding())
 
   def swap(from_slot, to_slot), do: container_function(&Container.swap/4, binding())
