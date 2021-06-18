@@ -1,7 +1,6 @@
 defmodule Rs2ex.Item.Container do
   alias Rs2ex.Item
   alias Rs2ex.Item.Definition
-
   @max_quantity 2_147_483_647
 
   def add_item(items, id, quantity, %{always_stack: always_stack, capacity: _capacity} = opts)
@@ -56,25 +55,26 @@ defmodule Rs2ex.Item.Container do
   end
 
   def set(items, slot, id, quantity, _opts \\ %{}) do
-    with {item, item_index} <-
-           Enum.with_index(items) |> Enum.find(fn {item, _index} -> item.slot == slot end) do
-      {:ok, items |> List.replace_at(item_index, %Item{item | id: id, quantity: quantity})}
-    else
-      nil -> {:error, items}
+    case Enum.with_index(items) |> Enum.find(fn {item, _index} -> item.slot == slot end) do
+      {item, item_index} ->
+        {:ok, items |> List.replace_at(item_index, %Item{item | id: id, quantity: quantity})}
+
+      nil ->
+        {:error, items}
     end
   end
 
   def has_room_for?(_items) do
   end
 
-  def insert(_items, _from_slot, _to_slot, _opts \\ %{}) do
-    # todo
-    #
-    # recursively swap item with its neighbor (forward or backward) until
-    # item is placed into correct to_slot
-
-
-    
+  def insert(items, from_slot, to_slot, _opts \\ %{}) do
+    with items <- Enum.sort_by(items, fn item -> item.slot end),
+         {item, items} <- List.pop_at(items, from_slot),
+         items <- List.insert_at(items, to_slot, item) do
+      items
+      |> Enum.with_index()
+      |> Enum.map(fn {item, index} -> %Item{item | slot: index} end)
+    end
   end
 
   def remove(_items, _preferred_slot, _id, _quantity, %{always_stack: _always_stack} = _opts) do
