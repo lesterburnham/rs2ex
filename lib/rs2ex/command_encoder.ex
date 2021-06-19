@@ -36,4 +36,10 @@ defmodule Rs2ex.CommandEncoder do
     %Packet{opcode: 240}
     |> add_short(weight)
   end
+
+  def send_string(id, str) do
+    %Packet{opcode: 126, type: :var16}
+    |> add_str(str)
+    |> add_short_a(id)
+  end
 end
