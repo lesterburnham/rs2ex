@@ -5,7 +5,7 @@ defmodule Rs2ex.Player.Weight do
     update_weight()
   end
 
-  def handle_slot_swap(_items, _slots) do
+  def handle_slot_swap(_items, _from_slot, _to_slot) do
     update_weight()
   end
 

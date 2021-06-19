@@ -28,7 +28,7 @@ defmodule Rs2ex.Item.ContainerServer do
 
   def swap(from_slot, to_slot) do
     container_function(&Container.swap/4, binding())
-    |> after_container_function_hooks(:handle_slot_swap, [[from_slot, to_slot]])
+    |> after_container_function_hooks(:handle_slot_swap, [from_slot, to_slot])
   end
 
   def set(slot, id, quantity) do
