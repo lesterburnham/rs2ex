@@ -215,45 +215,51 @@ defmodule Rs2ex.Item.ContainerTest do
     opts = %{capacity: 10, always_stack: false}
 
     # insert to a higher slot
-    assert Container.insert(items, 0, 2, opts) == [
-             %Rs2ex.Item{id: 1267, quantity: 1},
-             %Rs2ex.Item{id: 1269, quantity: 1},
-             %Rs2ex.Item{id: 1265, quantity: 1},
-             %Rs2ex.Item{id: 1271, quantity: 1},
-             nil,
-             nil,
-             nil,
-             nil,
-             nil,
-             nil
-           ]
+    assert Container.insert(items, 0, 2, opts) ==
+             {:ok,
+              [
+                %Rs2ex.Item{id: 1267, quantity: 1},
+                %Rs2ex.Item{id: 1269, quantity: 1},
+                %Rs2ex.Item{id: 1265, quantity: 1},
+                %Rs2ex.Item{id: 1271, quantity: 1},
+                nil,
+                nil,
+                nil,
+                nil,
+                nil,
+                nil
+              ]}
 
     # insert to a lower slot
-    assert Container.insert(items, 3, 1, opts) == [
-             %Rs2ex.Item{id: 1265, quantity: 1},
-             %Rs2ex.Item{id: 1271, quantity: 1},
-             %Rs2ex.Item{id: 1267, quantity: 1},
-             %Rs2ex.Item{id: 1269, quantity: 1},
-             nil,
-             nil,
-             nil,
-             nil,
-             nil,
-             nil
-           ]
+    assert Container.insert(items, 3, 1, opts) ==
+             {:ok,
+              [
+                %Rs2ex.Item{id: 1265, quantity: 1},
+                %Rs2ex.Item{id: 1271, quantity: 1},
+                %Rs2ex.Item{id: 1267, quantity: 1},
+                %Rs2ex.Item{id: 1269, quantity: 1},
+                nil,
+                nil,
+                nil,
+                nil,
+                nil,
+                nil
+              ]}
 
     # insert to an empty slot
-    assert Container.insert(items, 1, 7, opts) == [
-             %Rs2ex.Item{id: 1265, quantity: 1},
-             %Rs2ex.Item{id: 1269, quantity: 1},
-             %Rs2ex.Item{id: 1271, quantity: 1},
-             nil,
-             nil,
-             nil,
-             nil,
-             %Rs2ex.Item{id: 1267, quantity: 1},
-             nil,
-             nil
-           ]
+    assert Container.insert(items, 1, 7, opts) ==
+             {:ok,
+              [
+                %Rs2ex.Item{id: 1265, quantity: 1},
+                %Rs2ex.Item{id: 1269, quantity: 1},
+                %Rs2ex.Item{id: 1271, quantity: 1},
+                nil,
+                nil,
+                nil,
+                nil,
+                %Rs2ex.Item{id: 1267, quantity: 1},
+                nil,
+                nil
+              ]}
   end
 end

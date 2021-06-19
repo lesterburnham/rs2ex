@@ -7,7 +7,8 @@ defmodule Rs2ex.Item.ContainerAdapter do
   @callback handle_slot_set(items :: list(%Item{}), slot :: integer) :: :ok
 
   # old: slots_changed
-  @callback handle_slot_swap(items :: list(%Item{}), from_slot :: integer, to_slot :: integer) :: :ok
+  @callback handle_slot_swap(items :: list(%Item{}), from_slot :: integer, to_slot :: integer) ::
+              :ok
 
   # old: items_changed
   @callback handle_container_update(items :: list(%Item{})) :: :ok
