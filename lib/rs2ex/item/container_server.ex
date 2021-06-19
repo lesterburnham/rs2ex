@@ -3,9 +3,19 @@ defmodule Rs2ex.Item.ContainerServer do
 
   defstruct [:always_stack, :capacity, items: [], hooks: []]
 
-  def start_link do
+  def start_link(hooks \\ []) do
     # todo: change this to have unique names
-    Agent.start_link(fn -> %__MODULE__{always_stack: false, capacity: 28} end, name: __MODULE__)
+    Agent.start_link(
+      fn ->
+        %__MODULE__{
+          always_stack: false,
+          capacity: 28,
+          items: List.duplicate(nil, 28),
+          hooks: hooks
+        }
+      end,
+      name: __MODULE__
+    )
   end
 
   # if we add pid to this we'll need to make sure the args uses
@@ -21,7 +31,8 @@ defmodule Rs2ex.Item.ContainerServer do
     Agent.get_and_update(__MODULE__, fn state ->
       opts = %{
         always_stack: state.always_stack,
-        capacity: state.capacity
+        capacity: state.capacity,
+        hooks: state.hooks
       }
 
       {_, items} = ret = apply(fun, [state.items] ++ Keyword.values(args) ++ [opts])

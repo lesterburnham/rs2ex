@@ -9,9 +9,13 @@ defmodule Rs2ex.Player.Weight do
     update_weight()
   end
 
-  def handle_container_update(_items) do
+  def handle_container_update(items) do
     IO.puts("hello")
-    update_weight()
+    # update_weight()
+
+    weight = calculate_weight(items)
+
+    IO.puts("weight: #{weight}")
   end
 
   def update_weight do
@@ -25,7 +29,11 @@ defmodule Rs2ex.Player.Weight do
     {_, weight} =
       items
       |> Enum.map_reduce(0.0, fn item, sum ->
-        {item, sum + Rs2ex.Item.Definition.for_id(item.id).weight}
+        if item do
+          {item, sum + Rs2ex.Item.Definition.for_id(item.id).weight}
+        else
+          {item, sum}
+        end
       end)
 
     weight |> round

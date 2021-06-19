@@ -204,7 +204,12 @@ defmodule Rs2ex.Item.ContainerTest do
       %Rs2ex.Item{id: 1267, quantity: 1},
       %Rs2ex.Item{id: 1269, quantity: 1},
       %Rs2ex.Item{id: 1271, quantity: 1},
-      nil, nil, nil, nil, nil, nil
+      nil,
+      nil,
+      nil,
+      nil,
+      nil,
+      nil
     ]
 
     opts = %{capacity: 10, always_stack: false}
@@ -215,7 +220,12 @@ defmodule Rs2ex.Item.ContainerTest do
              %Rs2ex.Item{id: 1269, quantity: 1},
              %Rs2ex.Item{id: 1265, quantity: 1},
              %Rs2ex.Item{id: 1271, quantity: 1},
-             nil, nil, nil, nil, nil, nil
+             nil,
+             nil,
+             nil,
+             nil,
+             nil,
+             nil
            ]
 
     # insert to a lower slot
@@ -224,7 +234,12 @@ defmodule Rs2ex.Item.ContainerTest do
              %Rs2ex.Item{id: 1271, quantity: 1},
              %Rs2ex.Item{id: 1267, quantity: 1},
              %Rs2ex.Item{id: 1269, quantity: 1},
-             nil, nil, nil, nil, nil, nil
+             nil,
+             nil,
+             nil,
+             nil,
+             nil,
+             nil
            ]
 
     # insert to an empty slot
