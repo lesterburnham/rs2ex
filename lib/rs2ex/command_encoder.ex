@@ -3,19 +3,19 @@ defmodule Rs2ex.CommandEncoder do
   import Packet.Encoder
 
   @sidebar_interfaces [
-    2423,
-    3917,
-    638,
-    3213,
-    1644,
-    5608,
-    1151,
-    5065,
-    5715,
-    2449,
-    4445,
-    147,
-    6299
+    [1, 3917],
+    [2, 638],
+    [3, 3213],
+    [4, 1644],
+    [5, 5608],
+    [6, 1151],
+    [8, 5065],
+    [9, 5715],
+    [10, 2449],
+    [11, 4445],
+    [12, 147],
+    [13, 6299],
+    [0, 2423]
   ]
 
   def initialize_player(%Player{member: member, index: index}) do
@@ -67,9 +67,8 @@ defmodule Rs2ex.CommandEncoder do
 
   def send_sidebar_interfaces() do
     @sidebar_interfaces
-    |> Enum.with_index()
-    |> Enum.map(fn {interface, index} ->
-      send_sidebar_interface(index, interface)
+    |> Enum.map(fn [icon | [interface]] ->
+      send_sidebar_interface(icon, interface)
     end)
   end
 end
