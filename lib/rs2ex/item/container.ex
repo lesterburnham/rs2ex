@@ -3,9 +3,7 @@ defmodule Rs2ex.Item.Container do
   alias Rs2ex.Item.Definition
   @max_quantity 2_147_483_647
 
-  def add_item(items, id, quantity, opts) when quantity > 0 do
-    %{always_stack: always_stack, hooks: hooks} = Map.merge(%{hooks: []}, opts)
-
+  def add_item(items, id, quantity, %{always_stack: always_stack} = opts) when quantity > 0 do
     if always_stack || stackable_item?(id) do
       items
       |> Enum.with_index()
@@ -13,13 +11,7 @@ defmodule Rs2ex.Item.Container do
       |> add_stackable_item(items, id, quantity, opts)
     else
       if free_slot_count(items, opts) >= quantity do
-        updated_items = fill_free_slots(items, id, quantity, opts)
-
-        Enum.each(hooks, fn hook ->
-          apply(hook, :handle_container_update, [updated_items])
-        end)
-
-        {:ok, updated_items}
+        {:ok, fill_free_slots(items, id, quantity, opts)}
       else
         {:full, items}
       end
@@ -77,7 +69,7 @@ defmodule Rs2ex.Item.Container do
   def insert(items, from_slot, to_slot, _opts \\ %{}) do
     with {item, items} <- List.pop_at(items, from_slot),
          items <- List.insert_at(items, to_slot, item) do
-      items
+      {:ok, items}
     end
   end
 
