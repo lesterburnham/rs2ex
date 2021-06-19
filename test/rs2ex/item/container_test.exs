@@ -54,7 +54,8 @@ defmodule Rs2ex.Item.ContainerTest do
     assert Container.add_item(items, 995, 100, opts) == {:full, items}
 
     # exceeding max quantity
-    assert Container.add_item([nil, nil, nil, nil], 995, 2_147_483_647 + 1, opts) == {:full, [nil, nil, nil, nil]}
+    assert Container.add_item([nil, nil, nil, nil], 995, 2_147_483_647 + 1, opts) ==
+             {:full, [nil, nil, nil, nil]}
 
     assert Container.add_item([nil, nil, nil, nil], 995, 2_147_483_647, opts) ==
              {:ok, [%Rs2ex.Item{id: 995, quantity: 2_147_483_647}, nil, nil, nil]}
@@ -202,7 +203,8 @@ defmodule Rs2ex.Item.ContainerTest do
       %Rs2ex.Item{id: 1265, quantity: 1},
       %Rs2ex.Item{id: 1267, quantity: 1},
       %Rs2ex.Item{id: 1269, quantity: 1},
-      %Rs2ex.Item{id: 1271, quantity: 1}
+      %Rs2ex.Item{id: 1271, quantity: 1},
+      nil, nil, nil, nil, nil, nil
     ]
 
     opts = %{capacity: 10, always_stack: false}
@@ -212,7 +214,8 @@ defmodule Rs2ex.Item.ContainerTest do
              %Rs2ex.Item{id: 1267, quantity: 1},
              %Rs2ex.Item{id: 1269, quantity: 1},
              %Rs2ex.Item{id: 1265, quantity: 1},
-             %Rs2ex.Item{id: 1271, quantity: 1}
+             %Rs2ex.Item{id: 1271, quantity: 1},
+             nil, nil, nil, nil, nil, nil
            ]
 
     # insert to a lower slot
@@ -220,7 +223,8 @@ defmodule Rs2ex.Item.ContainerTest do
              %Rs2ex.Item{id: 1265, quantity: 1},
              %Rs2ex.Item{id: 1271, quantity: 1},
              %Rs2ex.Item{id: 1267, quantity: 1},
-             %Rs2ex.Item{id: 1269, quantity: 1}
+             %Rs2ex.Item{id: 1269, quantity: 1},
+             nil, nil, nil, nil, nil, nil
            ]
 
     # insert to an empty slot
@@ -228,7 +232,13 @@ defmodule Rs2ex.Item.ContainerTest do
              %Rs2ex.Item{id: 1265, quantity: 1},
              %Rs2ex.Item{id: 1269, quantity: 1},
              %Rs2ex.Item{id: 1271, quantity: 1},
-             %Rs2ex.Item{id: 1267, quantity: 1}
+             nil,
+             nil,
+             nil,
+             nil,
+             %Rs2ex.Item{id: 1267, quantity: 1},
+             nil,
+             nil
            ]
   end
 end
