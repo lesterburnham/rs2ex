@@ -1,5 +1,5 @@
-defmodule Rs2ex.Player.Weight do
-  @behaviour Rs2ex.Item.ContainerAdapter
+defmodule Rs2ex.Item.Hook.Weight do
+  @behaviour Rs2ex.Item.Hook
 
   def handle_slot_set(_items, _slot) do
     update_weight()
@@ -39,8 +39,3 @@ defmodule Rs2ex.Player.Weight do
     weight |> round
   end
 end
-
-# l = [&Rs2ex.Player.Weight.handle_container_update/1]
-# Enum.each(l, fn f -> f.([]) end)
-
-# interface container listener usually has state (interface id)

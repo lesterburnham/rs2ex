@@ -1,4 +1,4 @@
-defmodule Rs2ex.Item.ContainerAdapter do
+defmodule Rs2ex.Item.Hook do
   alias Rs2ex.Item
 
   # todo: need player reference
