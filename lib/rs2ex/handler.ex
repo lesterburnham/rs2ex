@@ -281,6 +281,8 @@ defmodule Rs2ex.Handler do
 
           send_packet(state, PlayerUpdate.build(player))
 
+          Enum.each(CommandEncoder.send_sidebar_interfaces(), &send_packet(state, &1))
+
           process_buffer(%{
             state
             | status: :authenticated,

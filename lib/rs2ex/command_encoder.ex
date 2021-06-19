@@ -2,6 +2,22 @@ defmodule Rs2ex.CommandEncoder do
   alias Rs2ex.{Player, Packet, Location}
   import Packet.Encoder
 
+  @sidebar_interfaces [
+    2423,
+    3917,
+    638,
+    3213,
+    1644,
+    5608,
+    1151,
+    5065,
+    5715,
+    2449,
+    4445,
+    147,
+    6299
+  ]
+
   def initialize_player(%Player{member: member, index: index}) do
     %Packet{opcode: 249}
     |> add_byte_a(if member, do: 1, else: 0)
@@ -41,5 +57,19 @@ defmodule Rs2ex.CommandEncoder do
     %Packet{opcode: 126, type: :var16}
     |> add_str(str)
     |> add_short_a(id)
+  end
+
+  def send_sidebar_interface(icon, id) do
+    %Packet{opcode: 71}
+    |> add_short(id)
+    |> add_byte_a(icon)
+  end
+
+  def send_sidebar_interfaces() do
+    @sidebar_interfaces
+    |> Enum.with_index()
+    |> Enum.map(fn {interface, index} ->
+      send_sidebar_interface(index, interface)
+    end)
   end
 end
