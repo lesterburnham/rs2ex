@@ -31,35 +31,26 @@ defmodule Rs2ex.Item.Hook.Bonus do
     :prayer_bonus
   ]
 
-  def handle_slot_set(items, _slot) do
-    update_bonuses(items)
+  def handle_slot_set(session, items, _slot) do
+    update_bonuses(session, items)
   end
 
-  def handle_slot_swap(items, _from_slot, _to_slot) do
-    update_bonuses(items)
+  def handle_slot_swap(session, items, _from_slot, _to_slot) do
+    update_bonuses(session, items)
   end
 
-  def handle_container_update(items) do
-    update_bonuses(items)
+  def handle_container_update(session, items) do
+    update_bonuses(session, items)
   end
 
-  def update_bonuses(items) do
-    # todo: use packet 126 (send_string)
+  def update_bonuses(session, items) do
     items
     |> build_bonus_text()
     |> Enum.with_index()
     |> Enum.each(fn {text, index} ->
       id = if index >= 10, do: 1675 + index + 1, else: 1675 + index
 
-      IO.puts("send string: #{id}, #{text}")
-
-      case Registry.lookup(Rs2ex.Xyz, "mopar") do
-        [{pid, _}] ->
-          GenServer.call(pid, {:send_packet, Rs2ex.CommandEncoder.send_string(id, text)})
-
-        _ ->
-          nil
-      end
+      Rs2ex.Session.send_packet(session, Rs2ex.CommandEncoder.send_string(id, text))
     end)
   end
 

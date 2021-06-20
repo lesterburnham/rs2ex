@@ -1,7 +1,7 @@
 defmodule Rs2ex.Item.ContainerServer do
   alias Rs2ex.Item.Container
 
-  defstruct [:always_stack, :capacity, items: [], hooks: []]
+  defstruct [:always_stack, :capacity, items: [], hooks: [], session: "mopar"]
 
   def start_link(hooks \\ []) do
     # todo: change this to have unique names
@@ -56,9 +56,11 @@ defmodule Rs2ex.Item.ContainerServer do
   end
 
   defp after_container_function_hooks(ret, fun, extra_args \\ []) do
+    session = get_session()
+
     case ret do
       {:ok, items} ->
-        run_hooks(fun, [items] ++ extra_args)
+        run_hooks(fun, [session] ++ [items] ++ extra_args)
         ret
 
       _ ->
@@ -72,6 +74,10 @@ defmodule Rs2ex.Item.ContainerServer do
 
   defp get_hooks do
     Agent.get(__MODULE__, fn state -> state.hooks end)
+  end
+
+  defp get_session do
+    Agent.get(__MODULE__, fn state -> state.session end)
   end
 
   def get_items do

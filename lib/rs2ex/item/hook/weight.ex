@@ -1,28 +1,32 @@
 defmodule Rs2ex.Item.Hook.Weight do
   @behaviour Rs2ex.Item.Hook
 
-  def handle_slot_set(_items, _slot) do
-    update_weight()
+  def handle_slot_set(session, items, _slot) do
+    update_weight(session, items)
   end
 
-  def handle_slot_swap(_items, _from_slot, _to_slot) do
-    update_weight()
+  def handle_slot_swap(session, items, _from_slot, _to_slot) do
+    update_weight(session, items)
   end
 
-  def handle_container_update(items) do
+  def handle_container_update(session, items) do
+    update_weight(session, items)
+
     IO.puts("hello")
-    # update_weight()
 
     weight = calculate_weight(items)
 
     IO.puts("weight: #{weight}")
   end
 
-  def update_weight do
+  def update_weight(session, items) do
     # so I guess we just ignore the items passed in?
     # shit this uses inventory AND equipment weights
 
-    # GenServer.call(pid, {:send_packet, Rs2ex.CommandEncoder.update_weight(weight)})
+    Rs2ex.Session.send_packet(
+      session,
+      items |> calculate_weight() |> Rs2ex.CommandEncoder.update_weight()
+    )
   end
 
   def calculate_weight(items) do

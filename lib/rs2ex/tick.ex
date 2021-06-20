@@ -20,6 +20,7 @@ defmodule Rs2ex.Tick do
       %Player{
         index: 1,
         member: true,
+        session: "mopar",
         location: %Rs2ex.Location{x: 3222, y: 3218, z: 0}
       }
     ]
@@ -45,28 +46,13 @@ defmodule Rs2ex.Tick do
     nil
   end
 
-  defp update_task(%Player{index: _index} = player) do
+  defp update_task(%Player{session: session} = player) do
     # Logger.debug("player update #{index}")
+
     # player update
     # npc update
 
-    # {pid, _} = Registry.lookup(Rs2ex.Xyz, "mopar")
-
-    case Registry.lookup(Rs2ex.Xyz, "mopar") do
-      [{pid, _}] ->
-        # IO.puts "got pid for mopar"
-        # IO.inspect pid
-
-        # Process.send(pid, message, [])
-
-        # test a crash here... (pid)
-        # crashes the entire app if the genserver call errors
-
-        GenServer.call(pid, {:send_packet, PlayerUpdate.build(player)})
-
-      _ ->
-        nil
-    end
+    Rs2ex.Session.send_packet(session, PlayerUpdate.build(player))
   end
 
   defp reset_task(%Npc{index: _index}) do
