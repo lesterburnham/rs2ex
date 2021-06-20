@@ -35,4 +35,9 @@ defmodule RS2.Packet.Decoder do
       {Overflow.short(val), %Packet{packet | payload: rest}}
     end
   end
+
+  def read_str(%Packet{payload: payload} = packet) do
+    [val, rest] = String.split(payload, <<10>>)
+    {val, %Packet{packet | payload: rest}}
+  end
 end

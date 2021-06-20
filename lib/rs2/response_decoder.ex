@@ -28,8 +28,11 @@ defmodule RS2.ResponseDecoder do
   end
 
   # command
-  def decode(%Packet{opcode: 103}) do
-    RS2.Container.Server.add_item({"mopar", :inventory}, 995, 100)
+  def decode(%Packet{opcode: 103} = packet) do
+    with {commandx, _} <- packet |> read_str(),
+         [command | args] <- commandx |> String.split(" ") do
+      RS2.Interface.Command.handle_command("mopar", command, args)
+    end
   end
 
   # button click
