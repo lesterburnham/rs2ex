@@ -59,6 +59,20 @@ defmodule RS2.Container.Server do
     |> after_container_function_hooks(container_id, :handle_container_update)
   end
 
+  def transfer_item(_from_container_id, _to_container_id, _from_slot, _id) do
+    # RS2.Container.Server.transfer_item({"mopar", :inventory}, {"mopar", :equipment}, 0, 4151, 1)
+
+    # from_items = get_items(from_container_id)
+    # # todo how to get???
+    # from_opts = nil
+    # to_items = get_items(to_container_id)
+    # # todo how to get???
+    # to_opts = nil
+
+    # container_function(container_id, &Container.transfer_item/2, binding())
+    # |> after_container_function_hooks(container_id, :handle_container_update)
+  end
+
   defp container_function(container_id, fun, args) do
     Agent.get_and_update(via_tuple(container_id), fn state ->
       opts = %{

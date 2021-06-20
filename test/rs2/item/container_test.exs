@@ -416,4 +416,61 @@ defmodule RS2.ContainerTest do
     # clear items from container
     assert Container.clear_items(items, opts) == {:ok, [nil, nil, nil]}
   end
+
+  test "transfer item from one container to another container" do
+    from_opts = %{capacity: 3, always_stack: false}
+
+    from_items = [
+      %Item{id: 4151, quantity: 1},
+      %Item{id: 882, quantity: 100},
+      nil
+    ]
+
+    to_opts = %{capacity: 3, always_stack: false}
+
+    to_items = [
+      nil,
+      nil,
+      nil
+    ]
+
+    # transfer a non stackable item
+    assert Container.transfer_item(from_items, from_opts, to_items, to_opts, 0, 4151) ==
+             {:ok, [nil, %Item{id: 882, quantity: 100}, nil],
+              [%Item{id: 4151, quantity: 1}, nil, nil]}
+
+    # transfer a stackable item
+    assert Container.transfer_item(from_items, from_opts, to_items, to_opts, 1, 882) ==
+             {:ok, [%Item{id: 4151, quantity: 1}, nil, nil],
+              [%Item{id: 882, quantity: 100}, nil, nil]}
+
+    # transfer an item that doesn't exist in that slot
+    assert Container.transfer_item(from_items, from_opts, to_items, to_opts, 1, 886) ==
+             {:error, from_items, to_items}
+
+    full_to_items = [
+      %Item{id: 4151, quantity: 1},
+      %Item{id: 882, quantity: 100},
+      %Item{id: 894, quantity: 100}
+    ]
+
+    # transfer stackable item to container with matching stackable item
+    assert Container.transfer_item(from_items, from_opts, full_to_items, to_opts, 1, 882) ==
+             {:ok, [%Item{id: 4151, quantity: 1}, nil, nil],
+              [
+                %Item{id: 4151, quantity: 1},
+                %Item{id: 882, quantity: 200},
+                %Item{id: 894, quantity: 100}
+              ]}
+
+    full_to_items_max = [
+      %Item{id: 4151, quantity: 1},
+      %Item{id: 882, quantity: 2_147_483_647},
+      %Item{id: 894, quantity: 100}
+    ]
+
+    # transfer stackable item to container with matching stackable item that is over max quantity
+    assert Container.transfer_item(from_items, from_opts, full_to_items_max, to_opts, 1, 882) ==
+             {:error, from_items, full_to_items_max}
+  end
 end

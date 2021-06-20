@@ -186,6 +186,32 @@ defmodule RS2.Container do
     {:ok, List.duplicate(nil, capacity)}
   end
 
+  def transfer_item(from_items, from_opts, to_items, to_opts, slot, id) do
+    case get_item_at_slot(from_items, slot) do
+      {:error, _} ->
+        {:error, from_items, to_items}
+
+      item ->
+        if item.id == id do
+          case add_item(to_items, item.id, item.quantity, to_opts) do
+            {:ok, new_to_items} ->
+              case set_item(from_items, slot, nil, from_opts) do
+                {:ok, new_from_items} ->
+                  {:ok, new_from_items, new_to_items}
+
+                {:error, _} ->
+                  {:error, from_items, to_items}
+              end
+
+            {:full, _} ->
+              {:error, from_items, to_items}
+          end
+        else
+          {:error, from_items, to_items}
+        end
+    end
+  end
+
   def total_quantity_of_id(items, id) do
     {_, quantity} =
       items
