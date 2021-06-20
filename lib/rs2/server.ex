@@ -1,7 +1,7 @@
 defmodule RS2.Server do
   require Logger
 
-  @port 43594
+  @port 43_594
 
   def start_link(_args) do
     Logger.debug("[tcp] starting server on port :#{@port}")

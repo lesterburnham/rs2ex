@@ -17,7 +17,7 @@ defmodule RS2.Tick.PlayerUpdate do
       <<bin::bitstring>>
     else
       padding_size = 8 - remainder
-      padding = <<0::padding_size*1>>
+      padding = <<0::size(padding_size)>>
       <<bin::bitstring, padding::bitstring>>
     end
   end

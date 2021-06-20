@@ -89,7 +89,7 @@ defmodule RS2.Handler do
 
   def handle_info(
         {:tcp, _socket, data},
-        state = %{buffer: buffer}
+        %{buffer: buffer} = state
       ) do
     if byte_size(data) > 0 do
       process_buffer(%{state | buffer: buffer <> data})
@@ -98,7 +98,7 @@ defmodule RS2.Handler do
     end
   end
 
-  def handle_info({:tcp_closed, socket}, state = %{socket: socket, transport: transport}) do
+  def handle_info({:tcp_closed, socket}, %{socket: socket, transport: transport} = state) do
     transport.close(socket)
     {:stop, :normal, state}
   end
@@ -110,7 +110,7 @@ defmodule RS2.Handler do
     {:reply, :ok, state}
   end
 
-  defp process_buffer(state = %{status: :opcode, buffer: buffer}) do
+  defp process_buffer(%{status: :opcode, buffer: buffer} = state) do
     if byte_size(buffer) >= 1 do
       <<opcode, _rest::binary>> = buffer
 
@@ -121,7 +121,7 @@ defmodule RS2.Handler do
   end
 
   defp process_buffer(
-         state = %{status: :login, socket: socket, transport: transport, buffer: buffer}
+         %{status: :login, socket: socket, transport: transport, buffer: buffer} = state
        ) do
     if byte_size(buffer) >= 1 do
       <<_name_hash, rest::binary>> = buffer
@@ -137,7 +137,7 @@ defmodule RS2.Handler do
   end
 
   defp process_buffer(
-         state = %{status: :precrypted, socket: socket, transport: transport, buffer: buffer}
+         %{status: :precrypted, socket: socket, transport: transport, buffer: buffer} = state
        ) do
     if byte_size(buffer) >= 2 do
       <<login_opcode::unsigned, login_size::unsigned, rest::binary>> = buffer
@@ -170,7 +170,7 @@ defmodule RS2.Handler do
   end
 
   defp process_buffer(
-         state = %{
+         %{
            status: :crypted,
            socket: socket,
            transport: transport,
@@ -178,7 +178,7 @@ defmodule RS2.Handler do
            login_size: login_size,
            enc_size: enc_size,
            server_key: server_key
-         }
+         } = state
        ) do
     if byte_size(buffer) >= login_size do
       <<
@@ -264,8 +264,7 @@ defmodule RS2.Handler do
           }
 
           # xxx use corrected username
-          k = Registry.register(RS2.Xyz, username, %{})
-          IO.inspect(k)
+          Registry.register(RS2.Xyz, username, %{})
 
           send_packet(state, CommandEncoder.initialize_player(player))
 
@@ -297,13 +296,13 @@ defmodule RS2.Handler do
   end
 
   defp process_buffer(
-         state = %{
+         %{
            status: :authenticated,
            buffer: buffer,
            psize: psize,
            popcode: popcode,
            in_cipher: in_cipher
-         }
+         } = state
        ) do
     if popcode == -1 do
       if byte_size(buffer) >= 1 do
@@ -345,12 +344,12 @@ defmodule RS2.Handler do
     end
   end
 
-  defp process_buffer(state = %{status: status}) do
+  defp process_buffer(%{status: status} = state) do
     Logger.warn("unhandled status: #{status}")
     {:noreply, state}
   end
 
-  defp process_opcode(@opcode_game, state = %{buffer: buffer}) do
+  defp process_opcode(@opcode_game, %{buffer: buffer} = state) do
     Logger.info("Connection type: client")
     <<_opcode, rest::binary>> = buffer
     process_buffer(%{state | status: :login, buffer: rest})
@@ -361,14 +360,14 @@ defmodule RS2.Handler do
     {:noreply, state}
   end
 
-  defp process_opcode(@opcode_player_count, state = %{socket: socket, transport: transport}) do
+  defp process_opcode(@opcode_player_count, %{socket: socket, transport: transport} = state) do
     Logger.info("Connection type: online")
     :ok = :gen_tcp.send(socket, "test")
     transport.close(socket)
     {:noreply, state}
   end
 
-  defp process_opcode(opcode, state = %{socket: socket, transport: transport}) do
+  defp process_opcode(opcode, %{socket: socket, transport: transport} = state) do
     Logger.warn("invalid opcode: #{opcode}")
     transport.close(socket)
     {:stop, :normal, state}
