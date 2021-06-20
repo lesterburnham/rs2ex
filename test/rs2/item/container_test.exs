@@ -448,6 +448,10 @@ defmodule RS2.ContainerTest do
     assert Container.transfer_item(from_items, from_opts, to_items, to_opts, 1, 886) ==
              {:error, from_items, to_items}
 
+    # transfer an item from a slot that doesn't exist
+    assert Container.transfer_item(from_items, from_opts, to_items, to_opts, 4, 886) ==
+             {:error, from_items, to_items}
+
     full_to_items = [
       %Item{id: 4151, quantity: 1},
       %Item{id: 882, quantity: 100},
