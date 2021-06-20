@@ -31,15 +31,15 @@ defmodule RS2.Container.Hook.Bonus do
     :prayer_bonus
   ]
 
-  def handle_slot_set(session, items, _slot) do
+  def handle_slot_set(session, items, _slot, _opts) do
     update_bonuses(session, items)
   end
 
-  def handle_slot_swap(session, items, _from_slot, _to_slot) do
+  def handle_slot_swap(session, items, _from_slot, _to_slot, _opts) do
     update_bonuses(session, items)
   end
 
-  def handle_container_update(session, items) do
+  def handle_container_update(session, items, _opts) do
     update_bonuses(session, items)
   end
 

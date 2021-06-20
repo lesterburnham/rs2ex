@@ -29,7 +29,7 @@ defmodule RS2.Packet.Decoder do
 
     val = a <<< 8 ||| Overflow.ubyte(b - 128)
 
-    if val > 32767 do
+    if val > 32_767 do
       {Overflow.short(val - 0x10000), %Packet{packet | payload: rest}}
     else
       {Overflow.short(val), %Packet{packet | payload: rest}}

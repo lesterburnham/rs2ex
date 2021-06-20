@@ -31,4 +31,8 @@ defmodule RS2.Packet.Encoder do
   def add_leshort_a(%Packet{payload: payload} = packet, val) do
     %Packet{packet | payload: payload <> <<val + 128, val >>> 8>>}
   end
+
+  def add_int2(%Packet{payload: payload} = packet, val) do
+    %Packet{packet | payload: payload <> <<val >>> 16, val >>> 24, val, val >>> 8>>}
+  end
 end

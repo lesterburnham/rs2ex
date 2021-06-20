@@ -27,6 +27,11 @@ defmodule RS2.ResponseDecoder do
     Logger.error("chat message")
   end
 
+  # command
+  def decode(%Packet{opcode: 103}) do
+    RS2.Container.Server.add_item({"mopar", :inventory}, 995, 100)
+  end
+
   # button click
   def decode(%Packet{opcode: 185} = packet) do
     {button_id, _packet} = packet |> read_short()

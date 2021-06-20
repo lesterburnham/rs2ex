@@ -71,4 +71,33 @@ defmodule RS2.CommandEncoder do
       send_sidebar_interface(icon, interface)
     end)
   end
+
+  def send_update_items(interface_id, items) do
+    %Packet{opcode: 53, type: :var16}
+    |> add_short(interface_id)
+    |> add_short(items |> Enum.count())
+    |> append_update_items_block(items)
+  end
+
+  defp append_update_items_block(packet, items) do
+    Enum.reduce(items, packet, fn item, packet ->
+      if item != nil do
+        packet
+        |> update_item_variable_size(item.quantity)
+        |> add_leshort_a(item.id + 1)
+      else
+        packet
+        |> add_byte(0)
+        |> add_leshort_a(0)
+      end
+    end)
+  end
+
+  defp update_item_variable_size(packet, quantity) when quantity > 254 do
+    packet
+    |> add_byte(255)
+    |> add_int2(quantity)
+  end
+
+  defp update_item_variable_size(packet, quantity), do: packet |> add_byte(quantity)
 end

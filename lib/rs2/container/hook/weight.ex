@@ -1,15 +1,15 @@
 defmodule RS2.Container.Hook.Weight do
   @behaviour RS2.Container.Hook
 
-  def handle_slot_set(session, items, _slot) do
+  def handle_slot_set(session, items, _slot, _opts) do
     update_weight(session, items)
   end
 
-  def handle_slot_swap(session, items, _from_slot, _to_slot) do
+  def handle_slot_swap(session, items, _from_slot, _to_slot, _opts) do
     update_weight(session, items)
   end
 
-  def handle_container_update(session, items) do
+  def handle_container_update(session, items, _opts) do
     update_weight(session, items)
 
     IO.puts("hello")

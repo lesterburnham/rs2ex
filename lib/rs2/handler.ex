@@ -266,6 +266,14 @@ defmodule RS2.Handler do
           # xxx use corrected username
           Registry.register(RS2.Xyz, username, %{})
 
+          RS2.Container.Server.start_link({username, :equipment}, 14, false, [])
+
+          RS2.Container.Server.start_link({username, :inventory}, 28, false, [
+            {RS2.Container.Hook.Interface, %{interface_id: 3214}}
+          ])
+
+          RS2.Container.Server.start_link({username, :bank}, 352, true, [])
+
           send_packet(state, CommandEncoder.initialize_player(player))
 
           send_packet(state, CommandEncoder.reset_camera())
@@ -378,7 +386,12 @@ defmodule RS2.Handler do
     #   "recv packet (opcode: #{opcode}, payload: #{inspect(payload, [{:binaries, :as_binaries}, {:limit, :infinity}])})"
     # )
 
-    ResponseDecoder.decode(packet)
+    task =
+      Task.async(fn ->
+        ResponseDecoder.decode(packet)
+      end)
+
+    Task.await(task)
   end
 
   defp send_packet(
