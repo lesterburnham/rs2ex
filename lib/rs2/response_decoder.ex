@@ -36,8 +36,8 @@ defmodule RS2.ResponseDecoder do
 
   # command
   def decode(%Packet{opcode: 103} = packet) do
-    with {commandx, _} <- packet |> read_str(),
-         [command | args] <- commandx |> String.split(" ") do
+    with {command, _} <- packet |> read_str(),
+         [command | args] <- command |> String.split(" ") do
       RS2.Interface.Command.handle_command("mopar", command, args)
     end
   end
