@@ -61,6 +61,7 @@ defmodule RS2.Item.Container do
     |> Enum.find(fn item -> item != nil and item.id == id end)
   end
 
+  @spec get_slot_for_item(list(%Item{}), integer()) :: integer() | nil
   defp get_slot_for_item(items, id) do
     items
     |> Enum.find_index(fn item -> item != nil and item.id == id end)
@@ -108,7 +109,7 @@ defmodule RS2.Item.Container do
     end
   end
 
-  def remove_item(items, id, quantity, opts \\ %{}) do
+  def remove_item(items, id, quantity, opts) do
     remove_item(items, id, quantity, -1, opts)
   end
 
