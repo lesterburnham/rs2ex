@@ -5,8 +5,8 @@ defmodule RS2.Interface.Command do
 
   def handle_command(session, "item", args) do
     case args do
-      [id] ->
-        RS2.Container.Server.add_item({session, :inventory}, id |> String.to_integer(), 1)
+      [_id] ->
+        handle_command(session, "item", args ++ ["1"])
 
       [id, quantity] ->
         RS2.Container.Server.add_item(

@@ -37,7 +37,7 @@ defmodule RS2.Packet.Decoder do
   end
 
   def read_str(%Packet{payload: payload} = packet) do
-    [val, rest] = String.split(payload, <<10>>)
+    [val, rest] = String.split(payload, <<10>>, parts: 2)
     {val, %Packet{packet | payload: rest}}
   end
 end
