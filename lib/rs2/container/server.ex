@@ -1,7 +1,7 @@
 defmodule RS2.Container.Server do
   alias RS2.Container
 
-  defstruct [:always_stack, :capacity, items: [], hooks: [], session: "mopar"]
+  defstruct [:always_stack, :capacity, items: [], hooks: []]
 
   def start_link(container_id, capacity, always_stack, hooks) do
     Agent.start_link(
@@ -16,11 +16,6 @@ defmodule RS2.Container.Server do
       name: via_tuple(container_id)
     )
   end
-
-  # RS2.Container.Server.start_link({"mopar", :equipment}, 14, false, [])
-  # RS2.Container.Server.start_link({"mopar", :inventory}, 28, false, [])
-  # RS2.Container.Server.start_link({"mopar", :bank}, 352, true, [])
-  # RS2.Container.Server.add_item({"mopar", :inventory}, 995, 100)
 
   defp via_tuple(container_id), do: {:via, Registry, {RS2.Container.Registry, container_id}}
 
@@ -93,16 +88,14 @@ defmodule RS2.Container.Server do
   end
 
   defp after_container_function_hooks(ret, container_id, fun, extra_args \\ []) do
-    session = get_session(container_id)
-
     case ret do
       {:ok, items} ->
-        run_hooks(container_id, fun, [session] ++ [items] ++ extra_args)
+        run_hooks(container_id, fun, [items] ++ extra_args)
         ret
 
       {:ok, items, slots, _} ->
         Enum.each(slots, fn slot ->
-          run_hooks(container_id, fun, [session] ++ [items] ++ [slot])
+          run_hooks(container_id, fun, [items] ++ [slot])
         end)
 
         ret
@@ -125,17 +118,15 @@ defmodule RS2.Container.Server do
   end
 
   defp run_hooks(container_id, fun, args) do
+    {session, _} = container_id
+
     Enum.each(get_hooks(container_id), fn {mod, config} ->
-      apply(mod, fun, args ++ [config])
+      apply(mod, fun, [session] ++ args ++ [config])
     end)
   end
 
   defp get_hooks(container_id) do
     Agent.get(via_tuple(container_id), fn state -> state.hooks end)
-  end
-
-  defp get_session(container_id) do
-    Agent.get(via_tuple(container_id), fn state -> state.session end)
   end
 
   def get_items(container_id) do
