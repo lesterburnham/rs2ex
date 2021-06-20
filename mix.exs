@@ -1,4 +1,4 @@
-defmodule Rs2ex.MixProject do
+defmodule RS2.MixProject do
   use Mix.Project
 
   def project do
@@ -21,7 +21,7 @@ defmodule Rs2ex.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {Rs2ex, []},
+      mod: {RS2, []},
       extra_applications: [:logger, :ranch]
     ]
   end
