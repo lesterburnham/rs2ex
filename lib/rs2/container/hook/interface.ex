@@ -14,8 +14,6 @@ defmodule RS2.Container.Hook.Interface do
   end
 
   def handle_container_update(session, items, %{interface_id: interface_id}) do
-    Task.async(fn ->
-      RS2.Session.send_packet(session, RS2.CommandEncoder.send_update_items(interface_id, items))
-    end)
+    RS2.Session.send_packet(session, RS2.CommandEncoder.send_update_items(interface_id, items))
   end
 end
