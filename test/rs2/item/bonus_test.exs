@@ -1,7 +1,7 @@
-defmodule RS2.Item.BonusTest do
+defmodule RS2.Container.Hook.BonusTest do
   use ExUnit.Case
-  alias RS2.Item
-  alias RS2.Item.Hook.Bonus
+  alias RS2.Container.Item
+  alias RS2.Container.Hook.Bonus
 
   test "calculate bonus" do
     items = [

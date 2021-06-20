@@ -1,6 +1,6 @@
-defmodule RS2.Item.Container do
-  alias RS2.Item
-  alias RS2.Item.Definition
+defmodule RS2.Container do
+  alias RS2.Container.Item
+  alias RS2.Container.Item.Definition
   @max_quantity 2_147_483_647
 
   def add_item(items, id, quantity, %{always_stack: always_stack} = opts) when quantity > 0 do

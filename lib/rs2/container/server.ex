@@ -1,5 +1,5 @@
-defmodule RS2.Item.ContainerServer do
-  alias RS2.Item.Container
+defmodule RS2.Container.Server do
+  alias RS2.Container
 
   defstruct [:always_stack, :capacity, items: [], hooks: [], session: "mopar"]
 

@@ -1,7 +1,7 @@
-defmodule RS2.Item.ContainerTest do
+defmodule RS2.ContainerTest do
   use ExUnit.Case
-  alias RS2.Item
-  alias RS2.Item.Container
+  alias RS2.Container.Item
+  alias RS2.Container
 
   test "check if item is stackable" do
     assert Container.stackable_item?(995) == true
@@ -27,13 +27,13 @@ defmodule RS2.Item.ContainerTest do
 
     # normal case
     assert Container.add_item(items, 995, 500, opts) ==
-             {:ok, [%RS2.Item{id: 995, quantity: 501}, nil, nil, nil]}
+             {:ok, [%Item{id: 995, quantity: 501}, nil, nil, nil]}
 
     # exceeding max quantity
     assert Container.add_item(items, 995, 2_147_483_647, opts) == {:full, items}
 
     assert Container.add_item(items, 995, 2_147_483_647 - 1, opts) ==
-             {:ok, [%RS2.Item{id: 995, quantity: 2_147_483_647}, nil, nil, nil]}
+             {:ok, [%Item{id: 995, quantity: 2_147_483_647}, nil, nil, nil]}
   end
 
   test "adding stackable item with non existing stack" do
@@ -58,7 +58,7 @@ defmodule RS2.Item.ContainerTest do
              {:full, [nil, nil, nil, nil]}
 
     assert Container.add_item([nil, nil, nil, nil], 995, 2_147_483_647, opts) ==
-             {:ok, [%RS2.Item{id: 995, quantity: 2_147_483_647}, nil, nil, nil]}
+             {:ok, [%Item{id: 995, quantity: 2_147_483_647}, nil, nil, nil]}
   end
 
   test "adding non stackable item" do
@@ -71,26 +71,26 @@ defmodule RS2.Item.ContainerTest do
     assert Container.add_item([nil, nil, nil, nil], 4151, 4, opts) ==
              {:ok,
               [
-                %RS2.Item{id: 4151, quantity: 1},
-                %RS2.Item{id: 4151, quantity: 1},
-                %RS2.Item{id: 4151, quantity: 1},
-                %RS2.Item{id: 4151, quantity: 1}
+                %Item{id: 4151, quantity: 1},
+                %Item{id: 4151, quantity: 1},
+                %Item{id: 4151, quantity: 1},
+                %Item{id: 4151, quantity: 1}
               ]}
 
     # adding to a full container
     full_container = [
-      %RS2.Item{id: 4151, quantity: 1},
-      %RS2.Item{id: 4151, quantity: 1},
-      %RS2.Item{id: 4151, quantity: 1},
-      %RS2.Item{id: 4151, quantity: 1}
+      %Item{id: 4151, quantity: 1},
+      %Item{id: 4151, quantity: 1},
+      %Item{id: 4151, quantity: 1},
+      %Item{id: 4151, quantity: 1}
     ]
 
     assert Container.add_item(full_container, 4151, 1, opts) == {:full, full_container}
 
     # adding enough to fill remaining slots
     partial_container = [
-      %RS2.Item{id: 4151, quantity: 1},
-      %RS2.Item{id: 4151, quantity: 1},
+      %Item{id: 4151, quantity: 1},
+      %Item{id: 4151, quantity: 1},
       nil,
       nil
     ]
@@ -103,15 +103,15 @@ defmodule RS2.Item.ContainerTest do
     # quantity must be greater than 0
     assert Container.add_item([], 4151, 0, %{capacity: 4, always_stack: true}) == {:error, []}
 
-    assert Container.add_item([%RS2.Item{id: 995, quantity: 100}], 995, 0, opts) ==
-             {:error, [%RS2.Item{id: 995, quantity: 100}]}
+    assert Container.add_item([%Item{id: 995, quantity: 100}], 995, 0, opts) ==
+             {:error, [%Item{id: 995, quantity: 100}]}
   end
 
   test "swapping item slots" do
     items = [
-      %RS2.Item{id: 1265, quantity: 1},
-      %RS2.Item{id: 1267, quantity: 1},
-      %RS2.Item{id: 1269, quantity: 1},
+      %Item{id: 1265, quantity: 1},
+      %Item{id: 1267, quantity: 1},
+      %Item{id: 1269, quantity: 1},
       nil
     ]
 
@@ -121,9 +121,9 @@ defmodule RS2.Item.ContainerTest do
     assert Container.swap_item(items, 1, 2, opts) ==
              {:ok,
               [
-                %RS2.Item{id: 1265, quantity: 1},
-                %RS2.Item{id: 1269, quantity: 1},
-                %RS2.Item{id: 1267, quantity: 1},
+                %Item{id: 1265, quantity: 1},
+                %Item{id: 1269, quantity: 1},
+                %Item{id: 1267, quantity: 1},
                 nil
               ]}
 
@@ -131,10 +131,10 @@ defmodule RS2.Item.ContainerTest do
     assert Container.swap_item(items, 1, 3, opts) ==
              {:ok,
               [
-                %RS2.Item{id: 1265, quantity: 1},
+                %Item{id: 1265, quantity: 1},
                 nil,
-                %RS2.Item{id: 1269, quantity: 1},
-                %RS2.Item{id: 1267, quantity: 1}
+                %Item{id: 1269, quantity: 1},
+                %Item{id: 1267, quantity: 1}
               ]}
 
     # swap empty slot to empty slot
@@ -152,25 +152,25 @@ defmodule RS2.Item.ContainerTest do
     opts = %{capacity: 4, always_stack: false}
 
     items = [
-      %RS2.Item{id: 1265, quantity: 1},
-      %RS2.Item{id: 1267, quantity: 1},
-      %RS2.Item{id: 1269, quantity: 1}
+      %Item{id: 1265, quantity: 1},
+      %Item{id: 1267, quantity: 1},
+      %Item{id: 1269, quantity: 1}
     ]
 
     # normal case
     assert Container.set_item(items, 1, 4151, 1) ==
              {:ok,
               [
-                %RS2.Item{id: 1265, quantity: 1},
-                %RS2.Item{id: 4151, quantity: 1},
-                %RS2.Item{id: 1269, quantity: 1}
+                %Item{id: 1265, quantity: 1},
+                %Item{id: 4151, quantity: 1},
+                %Item{id: 1269, quantity: 1}
               ]}
 
     # update quantity
-    assert Container.set_item([%RS2.Item{id: 995, quantity: 1}], 0, 995, 100) ==
+    assert Container.set_item([%Item{id: 995, quantity: 1}], 0, 995, 100) ==
              {:ok,
               [
-                %RS2.Item{id: 995, quantity: 100}
+                %Item{id: 995, quantity: 100}
               ]}
 
     # invalid slot
@@ -209,10 +209,10 @@ defmodule RS2.Item.ContainerTest do
 
   test "inserting item" do
     items = [
-      %RS2.Item{id: 1265, quantity: 1},
-      %RS2.Item{id: 1267, quantity: 1},
-      %RS2.Item{id: 1269, quantity: 1},
-      %RS2.Item{id: 1271, quantity: 1},
+      %Item{id: 1265, quantity: 1},
+      %Item{id: 1267, quantity: 1},
+      %Item{id: 1269, quantity: 1},
+      %Item{id: 1271, quantity: 1},
       nil,
       nil,
       nil,
@@ -227,10 +227,10 @@ defmodule RS2.Item.ContainerTest do
     assert Container.insert(items, 0, 2, opts) ==
              {:ok,
               [
-                %RS2.Item{id: 1267, quantity: 1},
-                %RS2.Item{id: 1269, quantity: 1},
-                %RS2.Item{id: 1265, quantity: 1},
-                %RS2.Item{id: 1271, quantity: 1},
+                %Item{id: 1267, quantity: 1},
+                %Item{id: 1269, quantity: 1},
+                %Item{id: 1265, quantity: 1},
+                %Item{id: 1271, quantity: 1},
                 nil,
                 nil,
                 nil,
@@ -243,10 +243,10 @@ defmodule RS2.Item.ContainerTest do
     assert Container.insert(items, 3, 1, opts) ==
              {:ok,
               [
-                %RS2.Item{id: 1265, quantity: 1},
-                %RS2.Item{id: 1271, quantity: 1},
-                %RS2.Item{id: 1267, quantity: 1},
-                %RS2.Item{id: 1269, quantity: 1},
+                %Item{id: 1265, quantity: 1},
+                %Item{id: 1271, quantity: 1},
+                %Item{id: 1267, quantity: 1},
+                %Item{id: 1269, quantity: 1},
                 nil,
                 nil,
                 nil,
@@ -259,14 +259,14 @@ defmodule RS2.Item.ContainerTest do
     assert Container.insert(items, 1, 7, opts) ==
              {:ok,
               [
-                %RS2.Item{id: 1265, quantity: 1},
-                %RS2.Item{id: 1269, quantity: 1},
-                %RS2.Item{id: 1271, quantity: 1},
+                %Item{id: 1265, quantity: 1},
+                %Item{id: 1269, quantity: 1},
+                %Item{id: 1271, quantity: 1},
                 nil,
                 nil,
                 nil,
                 nil,
-                %RS2.Item{id: 1267, quantity: 1},
+                %Item{id: 1267, quantity: 1},
                 nil,
                 nil
               ]}
@@ -276,28 +276,28 @@ defmodule RS2.Item.ContainerTest do
     opts = %{capacity: 4, always_stack: false}
 
     items = [
-      %RS2.Item{id: 995, quantity: 100},
-      %RS2.Item{id: 1267, quantity: 1},
-      %RS2.Item{id: 1269, quantity: 1},
-      %RS2.Item{id: 1269, quantity: 1}
+      %Item{id: 995, quantity: 100},
+      %Item{id: 1267, quantity: 1},
+      %Item{id: 1269, quantity: 1},
+      %Item{id: 1269, quantity: 1}
     ]
 
     # normal remove first occurence
     assert Container.remove_item(items, 1269, 1, opts) ==
              {:ok,
               [
-                %RS2.Item{id: 995, quantity: 100},
-                %RS2.Item{id: 1267, quantity: 1},
+                %Item{id: 995, quantity: 100},
+                %Item{id: 1267, quantity: 1},
                 nil,
-                %RS2.Item{id: 1269, quantity: 1}
+                %Item{id: 1269, quantity: 1}
               ], [2], 1}
 
     # remove multiple of non stackable item
     assert Container.remove_item(items, 1269, 2, opts) ==
              {:ok,
               [
-                %RS2.Item{id: 995, quantity: 100},
-                %RS2.Item{id: 1267, quantity: 1},
+                %Item{id: 995, quantity: 100},
+                %Item{id: 1267, quantity: 1},
                 nil,
                 nil
               ], [2, 3], 2}
@@ -306,10 +306,10 @@ defmodule RS2.Item.ContainerTest do
     assert Container.remove_item(items, 995, 50, opts) ==
              {:ok,
               [
-                %RS2.Item{id: 995, quantity: 50},
-                %RS2.Item{id: 1267, quantity: 1},
-                %RS2.Item{id: 1269, quantity: 1},
-                %RS2.Item{id: 1269, quantity: 1}
+                %Item{id: 995, quantity: 50},
+                %Item{id: 1267, quantity: 1},
+                %Item{id: 1269, quantity: 1},
+                %Item{id: 1269, quantity: 1}
               ], [0], 50}
 
     # remove non existing item
@@ -329,9 +329,9 @@ defmodule RS2.Item.ContainerTest do
              {:ok,
               [
                 nil,
-                %RS2.Item{id: 1267, quantity: 1},
-                %RS2.Item{id: 1269, quantity: 1},
-                %RS2.Item{id: 1269, quantity: 1}
+                %Item{id: 1267, quantity: 1},
+                %Item{id: 1269, quantity: 1},
+                %Item{id: 1269, quantity: 1}
               ], [0], 100}
   end
 
@@ -339,33 +339,33 @@ defmodule RS2.Item.ContainerTest do
     opts = %{capacity: 5, always_stack: false}
 
     items = [
-      %RS2.Item{id: 995, quantity: 100},
-      %RS2.Item{id: 1267, quantity: 1},
-      %RS2.Item{id: 1269, quantity: 1},
-      %RS2.Item{id: 1269, quantity: 1},
-      %RS2.Item{id: 1269, quantity: 1}
+      %Item{id: 995, quantity: 100},
+      %Item{id: 1267, quantity: 1},
+      %Item{id: 1269, quantity: 1},
+      %Item{id: 1269, quantity: 1},
+      %Item{id: 1269, quantity: 1}
     ]
 
     # remove item at slot 3
     assert Container.remove_item(items, 1269, 1, 3, opts) ==
              {:ok,
               [
-                %RS2.Item{id: 995, quantity: 100},
-                %RS2.Item{id: 1267, quantity: 1},
-                %RS2.Item{id: 1269, quantity: 1},
+                %Item{id: 995, quantity: 100},
+                %Item{id: 1267, quantity: 1},
+                %Item{id: 1269, quantity: 1},
                 nil,
-                %RS2.Item{id: 1269, quantity: 1}
+                %Item{id: 1269, quantity: 1}
               ], [3], 1}
 
     # try to remove item at slot 3 that doesn't match the id
     assert Container.remove_item(items, 1267, 1, 3, opts) ==
              {:ok,
               [
-                %RS2.Item{id: 995, quantity: 100},
+                %Item{id: 995, quantity: 100},
                 nil,
-                %RS2.Item{id: 1269, quantity: 1},
-                %RS2.Item{id: 1269, quantity: 1},
-                %RS2.Item{id: 1269, quantity: 1}
+                %Item{id: 1269, quantity: 1},
+                %Item{id: 1269, quantity: 1},
+                %Item{id: 1269, quantity: 1}
               ], [1], 1}
 
     # try to remove item at slot at preferred slot for an item that doesn't exist in container
@@ -377,8 +377,8 @@ defmodule RS2.Item.ContainerTest do
     opts = %{capacity: 3, always_stack: false}
 
     items = [
-      %RS2.Item{id: 995, quantity: 1},
-      %RS2.Item{id: 1267, quantity: 1},
+      %Item{id: 995, quantity: 1},
+      %Item{id: 1267, quantity: 1},
       nil
     ]
 
@@ -408,8 +408,8 @@ defmodule RS2.Item.ContainerTest do
     opts = %{capacity: 3, always_stack: false}
 
     items = [
-      %RS2.Item{id: 995, quantity: 1},
-      %RS2.Item{id: 1267, quantity: 1},
+      %Item{id: 995, quantity: 1},
+      %Item{id: 1267, quantity: 1},
       nil
     ]
 

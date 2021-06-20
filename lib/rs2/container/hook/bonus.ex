@@ -1,5 +1,5 @@
-defmodule RS2.Item.Hook.Bonus do
-  @behaviour RS2.Item.Hook
+defmodule RS2.Container.Hook.Bonus do
+  @behaviour RS2.Container.Hook
 
   @bonus_names [
     "Stab",
@@ -67,7 +67,7 @@ defmodule RS2.Item.Hook.Bonus do
   defp item_bonus(nil, _bonus_key), do: 0
 
   defp item_bonus(item, bonus_key) do
-    RS2.Item.Definition.for_id(item.id) |> Map.get(bonus_key)
+    RS2.Container.Item.Definition.for_id(item.id) |> Map.get(bonus_key)
   end
 
   def build_bonus_text(items) do

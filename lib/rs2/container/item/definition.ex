@@ -1,4 +1,4 @@
-defmodule RS2.Item.Definition do
+defmodule RS2.Container.Item.Definition do
   @enforce_keys [:id]
 
   @properties [
