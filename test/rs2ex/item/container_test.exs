@@ -118,7 +118,7 @@ defmodule Rs2ex.Item.ContainerTest do
     opts = %{capacity: 4, always_stack: false}
 
     # normal case
-    assert Container.swap(items, 1, 2, opts) ==
+    assert Container.swap_item(items, 1, 2, opts) ==
              {:ok,
               [
                 %Rs2ex.Item{id: 1265, quantity: 1},
@@ -128,7 +128,7 @@ defmodule Rs2ex.Item.ContainerTest do
               ]}
 
     # swap to empty slot
-    assert Container.swap(items, 1, 3, opts) ==
+    assert Container.swap_item(items, 1, 3, opts) ==
              {:ok,
               [
                 %Rs2ex.Item{id: 1265, quantity: 1},
@@ -138,13 +138,19 @@ defmodule Rs2ex.Item.ContainerTest do
               ]}
 
     # swap empty slot to empty slot
-    assert Container.swap([nil, nil, nil, nil], 1, 2, opts) == {:ok, [nil, nil, nil, nil]}
+    assert Container.swap_item([nil, nil, nil, nil], 1, 2, opts) == {:error, [nil, nil, nil, nil]}
+
+    # swap empty slot to filled slot
+    assert Container.swap_item(items, 3, 0, opts) == {:error, items}
 
     # invalid slot
-    assert Container.swap(items, 1, 10, opts) == {:error, items}
+    assert Container.swap_item(items, 1, 10, opts) == {:error, items}
+    assert Container.swap_item(items, 10, 1, opts) == {:error, items}
   end
 
   test "setting item slots" do
+    opts = %{capacity: 4, always_stack: false}
+
     items = [
       %Rs2ex.Item{id: 1265, quantity: 1},
       %Rs2ex.Item{id: 1267, quantity: 1},
@@ -152,7 +158,7 @@ defmodule Rs2ex.Item.ContainerTest do
     ]
 
     # normal case
-    assert Container.set(items, 1, 4151, 1) ==
+    assert Container.set_item(items, 1, 4151, 1) ==
              {:ok,
               [
                 %Rs2ex.Item{id: 1265, quantity: 1},
@@ -161,14 +167,17 @@ defmodule Rs2ex.Item.ContainerTest do
               ]}
 
     # update quantity
-    assert Container.set([%Rs2ex.Item{id: 995, quantity: 1}], 0, 995, 100) ==
+    assert Container.set_item([%Rs2ex.Item{id: 995, quantity: 1}], 0, 995, 100) ==
              {:ok,
               [
                 %Rs2ex.Item{id: 995, quantity: 100}
               ]}
 
     # invalid slot
-    assert Container.set(items, 10, 4151, 1) == {:error, items}
+    assert Container.set_item(items, 10, 4151, 1, opts) == {:error, items}
+
+    # invalid slot when setting to nil
+    assert Container.set_item(items, 10, nil, opts) == {:error, items}
   end
 
   test "getting total item quantity of id" do
@@ -261,5 +270,106 @@ defmodule Rs2ex.Item.ContainerTest do
                 nil,
                 nil
               ]}
+  end
+
+  test "removing item" do
+    opts = %{capacity: 4, always_stack: false}
+
+    items = [
+      %Rs2ex.Item{id: 995, quantity: 100},
+      %Rs2ex.Item{id: 1267, quantity: 1},
+      %Rs2ex.Item{id: 1269, quantity: 1},
+      %Rs2ex.Item{id: 1269, quantity: 1}
+    ]
+
+    # normal remove first occurence
+    assert Container.remove_item(items, 1269, 1, opts) ==
+             {:ok,
+              [
+                %Rs2ex.Item{id: 995, quantity: 100},
+                %Rs2ex.Item{id: 1267, quantity: 1},
+                nil,
+                %Rs2ex.Item{id: 1269, quantity: 1}
+              ], [2], 1}
+
+    # remove multiple of non stackable item
+    assert Container.remove_item(items, 1269, 2, opts) ==
+             {:ok,
+              [
+                %Rs2ex.Item{id: 995, quantity: 100},
+                %Rs2ex.Item{id: 1267, quantity: 1},
+                nil,
+                nil
+              ], [2, 3], 2}
+
+    # remove stackable item
+    assert Container.remove_item(items, 995, 50, opts) ==
+             {:ok,
+              [
+                %Rs2ex.Item{id: 995, quantity: 50},
+                %Rs2ex.Item{id: 1267, quantity: 1},
+                %Rs2ex.Item{id: 1269, quantity: 1},
+                %Rs2ex.Item{id: 1269, quantity: 1}
+              ], [0], 50}
+
+    # remove non existing item
+    assert Container.remove_item(items, 4151, 1, opts) ==
+             {:error, items}
+
+    # remove stackable item that doesn't exist
+    assert Container.remove_item(items, 4152, 1, opts) ==
+             {:error, items}
+
+    # remove stackable item that doesn't exist
+    assert Container.remove_item(items, 4152, 1, %{opts | always_stack: true}) ==
+             {:error, items}
+
+    # remove too many of an item
+    assert Container.remove_item(items, 995, 1000, opts) ==
+             {:ok,
+              [
+                nil,
+                %Rs2ex.Item{id: 1267, quantity: 1},
+                %Rs2ex.Item{id: 1269, quantity: 1},
+                %Rs2ex.Item{id: 1269, quantity: 1}
+              ], [0], 100}
+  end
+
+  test "remove item from preferred slot" do
+    opts = %{capacity: 5, always_stack: false}
+
+    items = [
+      %Rs2ex.Item{id: 995, quantity: 100},
+      %Rs2ex.Item{id: 1267, quantity: 1},
+      %Rs2ex.Item{id: 1269, quantity: 1},
+      %Rs2ex.Item{id: 1269, quantity: 1},
+      %Rs2ex.Item{id: 1269, quantity: 1}
+    ]
+
+    # remove item at slot 3
+    assert Container.remove_item(items, 1269, 1, 3, opts) ==
+             {:ok,
+              [
+                %Rs2ex.Item{id: 995, quantity: 100},
+                %Rs2ex.Item{id: 1267, quantity: 1},
+                %Rs2ex.Item{id: 1269, quantity: 1},
+                nil,
+                %Rs2ex.Item{id: 1269, quantity: 1}
+              ], [3], 1}
+
+    # try to remove item at slot 3 that doesn't match the id
+    assert Container.remove_item(items, 1267, 1, 3, opts) ==
+             {:ok,
+              [
+                %Rs2ex.Item{id: 995, quantity: 100},
+                nil,
+                %Rs2ex.Item{id: 1269, quantity: 1},
+                %Rs2ex.Item{id: 1269, quantity: 1},
+                %Rs2ex.Item{id: 1269, quantity: 1}
+              ], [1], 1}
+
+    # try to remove item at slot at preferred slot for an item that doesn't exist in container
+    assert Container.remove_item(items, 4151, 1, 3, opts) ==
+             {:error, items}
   end
 end

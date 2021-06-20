@@ -7,7 +7,7 @@ defmodule Rs2ex.Item.Container do
     if always_stack || stackable_item?(id) do
       items
       |> Enum.with_index()
-      |> Enum.find(fn {item, _index} -> !!item and item.id == id end)
+      |> Enum.find(fn {item, _index} -> item != nil and item.id == id end)
       |> add_stackable_item(items, id, quantity, opts)
     else
       if free_slot_count(items, opts) >= quantity do
@@ -20,15 +20,20 @@ defmodule Rs2ex.Item.Container do
 
   def add_item(items, _id, _quantity, _opts), do: {:error, items}
 
-  def swap(items, from_slot, to_slot, %{capacity: capacity}) do
+  def swap_item(items, from_slot, to_slot, %{capacity: capacity}) do
     if Enum.all?([from_slot, to_slot], &slot_in_range(&1, capacity)) do
-      from = get_item_at_slot(items, from_slot)
-      to = get_item_at_slot(items, to_slot)
+      case get_item_at_slot(items, from_slot) do
+        nil ->
+          {:error, items}
 
-      {:ok,
-       items
-       |> replace_item_at_slot(from_slot, to)
-       |> replace_item_at_slot(to_slot, from)}
+        from ->
+          to = get_item_at_slot(items, to_slot)
+
+          {:ok,
+           items
+           |> replace_item_at_slot(from_slot, to)
+           |> replace_item_at_slot(to_slot, from)}
+      end
     else
       {:error, items}
     end
@@ -36,8 +41,6 @@ defmodule Rs2ex.Item.Container do
 
   defp slot_in_range(slot, capacity) when slot in 0..(capacity - 1), do: true
   defp slot_in_range(_, _), do: false
-
-  defp replace_item_at_slot(items, nil, _), do: items
 
   defp replace_item_at_slot(items, index, item) do
     List.replace_at(items, index, item)
@@ -53,7 +56,20 @@ defmodule Rs2ex.Item.Container do
     end
   end
 
-  def set(items, slot, id, quantity, _opts \\ %{}) do
+  defp get_slot_for_item(items, id) do
+    items
+    |> Enum.find_index(fn item -> item != nil and item.id == id end)
+  end
+
+  def set_item(items, slot, nil, %{capacity: capacity}) do
+    if slot_in_range(slot, capacity) do
+      {:ok, List.replace_at(items, slot, nil)}
+    else
+      {:error, items}
+    end
+  end
+
+  def set_item(items, slot, id, quantity, _opts \\ %{}) do
     case get_item_at_slot(items, slot) do
       {:error, items} ->
         {:error, items}
@@ -73,8 +89,77 @@ defmodule Rs2ex.Item.Container do
     end
   end
 
-  def remove(_items, _preferred_slot, _id, _quantity, %{always_stack: _always_stack} = _opts) do
-    # todo
+  def remove_item(items, id, quantity, opts \\ %{}) do
+    remove_item(items, id, quantity, -1, opts)
+  end
+
+  def remove_item(items, id, quantity, preferred_slot, %{always_stack: always_stack} = opts) do
+    if always_stack || stackable_item?(id) do
+      items
+      |> remove_stackable_item(id, quantity, opts)
+    else
+      items
+      |> remove_single_item(id, quantity, preferred_slot, opts)
+    end
+  end
+
+  defp remove_stackable_item(items, id, quantity, opts) do
+    case get_slot_for_item(items, id) do
+      nil ->
+        {:error, items}
+
+      slot ->
+        item = get_item_at_slot(items, slot)
+
+        if item.quantity > quantity do
+          items
+          |> set_item(slot, id, item.quantity - quantity)
+          |> Tuple.append([slot])
+          |> Tuple.append(quantity)
+        else
+          items
+          |> set_item(slot, nil, opts)
+          |> Tuple.append([slot])
+          |> Tuple.append(item.quantity)
+        end
+    end
+  end
+
+  defp remove_single_item(items, id, quantity, preferred_slot, _opts) do
+    item_indexes = get_slots_for_item(items, id)
+
+    if Enum.empty?(item_indexes) do
+      {:error, items}
+    else
+      remove_indexes =
+        if preferred_slot != -1 do
+          Enum.find(item_indexes, item_indexes |> hd, fn slot ->
+            case get_item_at_slot(items, preferred_slot) do
+              {:error, _} ->
+                false
+
+              item ->
+                item.id == id && slot == preferred_slot
+            end
+          end)
+          |> List.wrap()
+        else
+          item_indexes |> Enum.take(quantity)
+        end
+
+      new_items =
+        items
+        |> Enum.with_index()
+        |> Enum.map(fn {item, index} ->
+          if Enum.member?(remove_indexes, index) do
+            nil
+          else
+            item
+          end
+        end)
+
+      {:ok, new_items, remove_indexes, Enum.count(remove_indexes)}
+    end
   end
 
   def total_quantity_of_id(items, id) do
@@ -90,8 +175,6 @@ defmodule Rs2ex.Item.Container do
 
     quantity
   end
-
-  # todo listeners
 
   defp add_stackable_item({item, index}, items, _id, quantity, _) do
     if item.quantity + quantity > @max_quantity do
@@ -139,6 +222,12 @@ defmodule Rs2ex.Item.Container do
   defp used_slots_indexes(items) do
     Enum.with_index(items)
     |> Enum.reject(fn {item, _index} -> item == nil end)
+    |> Enum.map(fn {_item, index} -> index end)
+  end
+
+  defp get_slots_for_item(items, id) do
+    Enum.with_index(items)
+    |> Enum.filter(fn {item, _index} -> item != nil and item.id == id end)
     |> Enum.map(fn {_item, index} -> index end)
   end
 

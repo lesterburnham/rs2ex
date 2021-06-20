@@ -26,19 +26,34 @@ defmodule Rs2ex.Item.ContainerServer do
     |> after_container_function_hooks(:handle_container_update)
   end
 
-  def swap(from_slot, to_slot) do
-    container_function(&Container.swap/4, binding())
+  def swap_item(from_slot, to_slot) do
+    container_function(&Container.swap_item/4, binding())
     |> after_container_function_hooks(:handle_slot_swap, [from_slot, to_slot])
   end
 
-  def set(slot, id, quantity) do
-    container_function(&Container.set/5, binding())
+  def set_item(slot, nil) do
+    container_function(&Container.set_item/4, binding())
+    |> after_container_function_hooks(:handle_slot_set, [slot])
+  end
+
+  def set_item(slot, id, quantity) do
+    container_function(&Container.set_item/5, binding())
     |> after_container_function_hooks(:handle_slot_set, [slot])
   end
 
   def insert(from_slot, to_slot) do
     container_function(&Container.insert/4, binding())
     |> after_container_function_hooks(:handle_container_update)
+  end
+
+  def remove_item(id, quantity) do
+    container_function(&Container.remove_item/4, binding())
+    |> after_container_function_hooks(:handle_slot_set)
+  end
+
+  def remove_item(id, quantity, preferred_slot) do
+    container_function(&Container.remove_item/5, binding())
+    |> after_container_function_hooks(:handle_slot_set)
   end
 
   defp container_function(fun, args) do
@@ -49,9 +64,15 @@ defmodule Rs2ex.Item.ContainerServer do
         hooks: state.hooks
       }
 
-      {_, items} = ret = apply(fun, [state.items] ++ Keyword.values(args) ++ [opts])
+      ret = apply(fun, [state.items] ++ Keyword.values(args) ++ [opts])
 
-      {ret, %__MODULE__{state | items: items}}
+      case ret do
+        {_, items} ->
+          {ret, %__MODULE__{state | items: items}}
+
+        {_, items, _, _} ->
+          {ret, %__MODULE__{state | items: items}}
+      end
     end)
   end
 
@@ -61,6 +82,13 @@ defmodule Rs2ex.Item.ContainerServer do
     case ret do
       {:ok, items} ->
         run_hooks(fun, [session] ++ [items] ++ extra_args)
+        ret
+
+      {:ok, items, slots, _} ->
+        Enum.each(slots, fn slot ->
+          run_hooks(fun, [session] ++ [items] ++ [slot])
+        end)
+
         ret
 
       _ ->
