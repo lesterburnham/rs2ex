@@ -9,6 +9,11 @@ defmodule RS2.Packet.Decoder do
     {val, %Packet{packet | payload: rest}}
   end
 
+  def read_byte_c(%Packet{} = packet) do
+    {val, packet} = read_byte(packet)
+    {Overflow.byte(-val), packet}
+  end
+
   def read_ubyte(%Packet{payload: payload} = packet) do
     <<val, rest::binary>> = payload
     {Overflow.ubyte(val), %Packet{packet | payload: rest}}
@@ -17,6 +22,30 @@ defmodule RS2.Packet.Decoder do
   def read_int(%Packet{payload: payload} = packet) do
     <<val::32, rest::binary>> = payload
     {val, %Packet{packet | payload: rest}}
+  end
+
+  def read_leshort(%Packet{payload: payload} = packet) do
+    <<a, b, rest::binary>> = payload
+
+    val = Overflow.ubyte(a) ||| Overflow.ubyte(b <<< 8)
+
+    if val > 32_767 do
+      {Overflow.short(val - 0x10000), %Packet{packet | payload: rest}}
+    else
+      {Overflow.short(val), %Packet{packet | payload: rest}}
+    end
+  end
+
+  def read_leshort_a(%Packet{payload: payload} = packet) do
+    <<a, b, rest::binary>> = payload
+
+    val = Overflow.ubyte(a - 128) ||| Overflow.ubyte(b) <<< 8
+
+    if val > 32_767 do
+      {Overflow.short(val - 0x10000), %Packet{packet | payload: rest}}
+    else
+      {Overflow.short(val), %Packet{packet | payload: rest}}
+    end
   end
 
   def read_short(%Packet{payload: payload} = packet) do

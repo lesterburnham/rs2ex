@@ -16,6 +16,10 @@ defmodule RS2.Packet.Encoder do
     %Packet{packet | payload: payload <> val <> <<10>>}
   end
 
+  def add_smart(%Packet{} = packet, val) when val >= 128, do: add_short(packet, val + 32_768)
+
+  def add_smart(%Packet{} = packet, val), do: add_byte(packet, val)
+
   def add_short(%Packet{payload: payload} = packet, val) do
     %Packet{packet | payload: payload <> <<val >>> 8, val>>}
   end
@@ -30,6 +34,10 @@ defmodule RS2.Packet.Encoder do
 
   def add_leshort_a(%Packet{payload: payload} = packet, val) do
     %Packet{packet | payload: payload <> <<val + 128, val >>> 8>>}
+  end
+
+  def add_int(%Packet{payload: payload} = packet, val) do
+    %Packet{packet | payload: payload <> <<val >>> 24, val >>> 16, val >>> 8, val>>}
   end
 
   def add_int2(%Packet{payload: payload} = packet, val) do

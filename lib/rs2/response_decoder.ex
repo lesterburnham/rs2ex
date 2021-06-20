@@ -34,6 +34,22 @@ defmodule RS2.ResponseDecoder do
     RS2.Session.send_packet("mopar", RS2.CommandEncoder.logout())
   end
 
+  # item swap
+  def decode(%Packet{opcode: 214} = packet) do
+    with {interface_id, packet} <- packet |> read_leshort_a(),
+         {_, packet} <- packet |> read_byte_c(),
+         {from_slot, packet} <- packet |> read_leshort_a(),
+         {to_slot, _packet} <- packet |> read_leshort() do
+      case container_for_interface(interface_id) do
+        nil ->
+          Logger.debug("unhandled swap for interface: #{interface_id}")
+
+        container ->
+          RS2.Container.Server.swap_item({"mopar", container}, from_slot, to_slot)
+      end
+    end
+  end
+
   # command
   def decode(%Packet{opcode: 103} = packet) do
     with {command, _} <- packet |> read_str(),
@@ -87,4 +103,8 @@ defmodule RS2.ResponseDecoder do
       "unhandled packet (opcode: #{opcode}, payload: #{inspect(payload, [{:binaries, :as_binaries}, {:limit, :infinity}])})"
     )
   end
+
+  defp container_for_interface(3214), do: :inventory
+
+  defp container_for_interface(_), do: nil
 end
