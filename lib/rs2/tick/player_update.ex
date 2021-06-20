@@ -29,7 +29,9 @@ defmodule RS2.Tick.PlayerUpdate do
   end
 
   def update_player do
-    <<0x10, appearance_block()::binary>>
+    # 0x8 animation
+    # 0x10 - appearance
+    <<(0x8 ||| 0x10), animation_block()::binary, appearance_block()::binary>>
   end
 
   def appearance_block do
@@ -66,5 +68,11 @@ defmodule RS2.Tick.PlayerUpdate do
   def appearance_anims() do
     # stand, stand turn, walk, turn 180, turn 90 cw, turn 90 ccw, run
     <<0x328::16, 0x337::16, 0x333::16, 0x334::16, 0x335::16, 0x336::16, 0x338::16>>
+  end
+
+  def animation_block do
+    # leshort id
+    # add_byte_c delay
+    <<866::16-little, 0>>
   end
 end

@@ -2,6 +2,7 @@ defmodule RS2.ResponseDecoder do
   require Logger
 
   alias RS2.Packet
+  alias RS2.Packet.Overflow
 
   import Packet.Decoder
 
@@ -25,6 +26,29 @@ defmodule RS2.ResponseDecoder do
   def decode(%Packet{opcode: 4}) do
     Logger.error("chat message")
   end
+
+  # button click
+  def decode(%Packet{opcode: 185} = packet) do
+    {button_id, _packet} = packet |> read_short()
+
+    Logger.debug("button click id: #{button_id}")
+
+    RS2.Interface.Button.handle_click("mopar", button_id)
+  end
+
+  # camera move
+  def decode(%Packet{opcode: 86} = packet) do
+    with {height, packet} <- packet |> read_short(),
+         _height <- (Overflow.ushort(height) - 128) |> Overflow.ubyte(),
+         {rotation, _packet} <- packet |> read_short_a(),
+         _rotation <- (Overflow.ushort(rotation) * 45) >>> 8 do
+      # Logger.debug("camera move height: #{height}, rotation: #{rotation}")
+    end
+  end
+
+  # on_packet(86) {|player, packet|
+  #   height = (packet.read_short.ushort - 128).ubyte
+  #   rotation = (packet.read_short_a.ushort * 45) >> 8
 
   # mouse click
   def decode(%Packet{opcode: 241} = packet) do

@@ -373,10 +373,10 @@ defmodule RS2.Handler do
     {:stop, :normal, state}
   end
 
-  defp receive_packet(%Packet{opcode: opcode, payload: payload} = packet) do
-    Logger.debug(
-      "recv packet (opcode: #{opcode}, payload: #{inspect(payload, [{:binaries, :as_binaries}, {:limit, :infinity}])})"
-    )
+  defp receive_packet(%Packet{opcode: _opcode, payload: _payload} = packet) do
+    # Logger.debug(
+    #   "recv packet (opcode: #{opcode}, payload: #{inspect(payload, [{:binaries, :as_binaries}, {:limit, :infinity}])})"
+    # )
 
     ResponseDecoder.decode(packet)
   end
@@ -391,9 +391,9 @@ defmodule RS2.Handler do
 
     packet_frame = <<new_opcode>> <> packet_size_header(type, byte_size(payload)) <> payload
 
-    Logger.debug(
-      "send packet (opcode: #{opcode}, payload: #{inspect(payload, [{:binaries, :as_binaries}, {:limit, :infinity}])})"
-    )
+    # Logger.debug(
+    #   "send packet (opcode: #{opcode}, payload: #{inspect(payload, [{:binaries, :as_binaries}, {:limit, :infinity}])})"
+    # )
 
     transport.send(socket, packet_frame)
   end
