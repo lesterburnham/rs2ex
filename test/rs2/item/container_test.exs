@@ -372,4 +372,48 @@ defmodule RS2.Item.ContainerTest do
     assert Container.remove_item(items, 4151, 1, 3, opts) ==
              {:error, items}
   end
+
+  test "has room for item" do
+    opts = %{capacity: 3, always_stack: false}
+
+    items = [
+      %RS2.Item{id: 995, quantity: 1},
+      %RS2.Item{id: 1267, quantity: 1},
+      nil
+    ]
+
+    # has room for non stackable item
+    assert Container.has_room_for?(items, 4151, 1, opts) == true
+
+    # make sure there is at least 1 item
+    assert Container.has_room_for?(items, 4151, 0, opts) == false
+
+    # doesn't have room for too many non stackable items
+    assert Container.has_room_for?(items, 4151, 10, opts) == false
+
+    # has room for multiple non stackable items
+    assert Container.has_room_for?(items, 4151, 10, %{opts | capacity: 28}) == true
+
+    # has room for existing stackable item
+    assert Container.has_room_for?(items, 995, 1, opts) == true
+
+    # doesn't have room for existing stackable item with quantity too large
+    assert Container.has_room_for?(items, 995, 2_147_483_647, opts) == false
+
+    # has room for new stackable item
+    assert Container.has_room_for?(items, 4152, 2_147_483_647, opts) == true
+  end
+
+  test "clears items from container" do
+    opts = %{capacity: 3, always_stack: false}
+
+    items = [
+      %RS2.Item{id: 995, quantity: 1},
+      %RS2.Item{id: 1267, quantity: 1},
+      nil
+    ]
+
+    # clear items from container
+    assert Container.clear_items(items, opts) == {:ok, [nil, nil, nil]}
+  end
 end

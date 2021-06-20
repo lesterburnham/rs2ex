@@ -56,6 +56,11 @@ defmodule RS2.Item.Container do
     end
   end
 
+  defp get_item_for_id(items, id) do
+    items
+    |> Enum.find(fn item -> item != nil and item.id == id end)
+  end
+
   defp get_slot_for_item(items, id) do
     items
     |> Enum.find_index(fn item -> item != nil and item.id == id end)
@@ -79,8 +84,22 @@ defmodule RS2.Item.Container do
     end
   end
 
-  def has_room_for?(_items) do
+  def has_room_for?(items, id, quantity, %{always_stack: always_stack} = opts)
+      when quantity > 0 do
+    if always_stack || stackable_item?(id) do
+      case get_item_for_id(items, id) do
+        nil ->
+          free_slot_count(items, opts) >= 1
+
+        item ->
+          item.quantity + quantity <= @max_quantity
+      end
+    else
+      free_slot_count(items, opts) >= quantity
+    end
   end
+
+  def has_room_for?(_items, _id, _quantity, _opts), do: false
 
   def insert(items, from_slot, to_slot, _opts \\ %{}) do
     with {item, items} <- List.pop_at(items, from_slot),
@@ -160,6 +179,10 @@ defmodule RS2.Item.Container do
 
       {:ok, new_items, remove_indexes, Enum.count(remove_indexes)}
     end
+  end
+
+  def clear_items(_items, %{capacity: capacity} = _opts) do
+    {:ok, List.duplicate(nil, capacity)}
   end
 
   def total_quantity_of_id(items, id) do

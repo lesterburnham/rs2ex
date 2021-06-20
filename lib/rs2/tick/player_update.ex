@@ -31,7 +31,7 @@ defmodule RS2.Tick.PlayerUpdate do
   def update_player do
     # 0x8 animation
     # 0x10 - appearance
-    <<(0x8 ||| 0x10), animation_block()::binary, appearance_block()::binary>>
+    <<0x8 ||| 0x10, animation_block()::binary, appearance_block()::binary>>
   end
 
   def appearance_block do

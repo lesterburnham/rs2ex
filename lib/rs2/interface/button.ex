@@ -33,14 +33,12 @@ defmodule RS2.Interface.Button do
   }
 
   # emotes
-  def handle_click(session, button_id) when is_map_key(@emotes, button_id) do
+  def handle_click(_session, button_id) when is_map_key(@emotes, button_id) do
     animation = Map.get(@emotes, button_id)
     Logger.info("animation: #{animation}")
-
-
   end
 
-  def handle_click(session, button_id) do
+  def handle_click(_session, button_id) do
     # {button_id}
     Logger.info("unhandled button: #{button_id}")
   end

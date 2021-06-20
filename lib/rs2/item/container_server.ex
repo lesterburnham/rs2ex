@@ -56,6 +56,11 @@ defmodule RS2.Item.ContainerServer do
     |> after_container_function_hooks(:handle_slot_set)
   end
 
+  def clear_items() do
+    container_function(&Container.clear_items/2, binding())
+    |> after_container_function_hooks(:handle_container_update)
+  end
+
   defp container_function(fun, args) do
     Agent.get_and_update(__MODULE__, fn state ->
       opts = %{
@@ -94,6 +99,18 @@ defmodule RS2.Item.ContainerServer do
       _ ->
         ret
     end
+  end
+
+  def has_room_for?(id, quantity) do
+    Agent.get(__MODULE__, fn state ->
+      opts = %{
+        always_stack: state.always_stack,
+        capacity: state.capacity,
+        hooks: state.hooks
+      }
+
+      Container.has_room_for?(state.items, id, quantity, opts)
+    end)
   end
 
   defp run_hooks(fun, args) do
