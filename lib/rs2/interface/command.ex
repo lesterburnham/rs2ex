@@ -21,6 +21,26 @@ defmodule RS2.Interface.Command do
     end
   end
 
+  def handle_command(session, "bank", args) do
+    case args do
+      [] ->
+        session |> Session.send_packet(RS2.Interface.Packets.send_interface_inventory(5292, 5063))
+
+      _ ->
+        session |> Session.send_packet(CommandEncoder.send_message("Usage: ::bank"))
+    end
+  end
+
+  def handle_command(session, "closeinterface", args) do
+    case args do
+      [] ->
+        session |> Session.send_packet(RS2.Interface.Packets.clear_screen())
+
+      _ ->
+        session |> Session.send_packet(CommandEncoder.send_message("Usage: ::closeinterface"))
+    end
+  end
+
   def handle_command(session, command, _) do
     session |> Session.send_packet(CommandEncoder.send_message("Unhandled command: #{command}"))
   end
