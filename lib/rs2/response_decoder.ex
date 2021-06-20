@@ -27,6 +27,13 @@ defmodule RS2.ResponseDecoder do
     Logger.error("chat message")
   end
 
+  # idle logout
+  def decode(%Packet{opcode: 202}) do
+    Logger.info("idle logout")
+
+    RS2.Session.send_packet("mopar", RS2.CommandEncoder.logout())
+  end
+
   # command
   def decode(%Packet{opcode: 103} = packet) do
     with {commandx, _} <- packet |> read_str(),

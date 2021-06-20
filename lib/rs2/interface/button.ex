@@ -38,6 +38,11 @@ defmodule RS2.Interface.Button do
     Logger.info("animation: #{animation}")
   end
 
+  # logout
+  def handle_click(session, 2458) do
+    RS2.Session.send_packet(session, RS2.CommandEncoder.logout())
+  end
+
   def handle_click(_session, button_id) do
     # {button_id}
     Logger.info("unhandled button: #{button_id}")
