@@ -42,7 +42,7 @@ defmodule RS2.Tick.PlayerUpdate do
         appearance_equipment(app) <>
         appearance_colors(app) <>
         appearance_anims() <>
-        <<0::64, 30, 0::16>>
+        <<RS2.Player.Username.name_to_long("mopar")::64, 30, 0::16>>
 
     <<-byte_size(props), props::binary>>
   end
