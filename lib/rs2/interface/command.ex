@@ -22,23 +22,11 @@ defmodule RS2.Interface.Command do
   end
 
   def handle_command(session, "bank", args) do
-    case args do
-      [] ->
-        session |> Session.send_packet(RS2.Interface.Packets.send_interface_inventory(5292, 5063))
-
-      _ ->
-        session |> Session.send_packet(CommandEncoder.send_message("Usage: ::bank"))
-    end
+    session |> Session.send_packet(RS2.Interface.Packets.send_interface_inventory(5292, 5063))
   end
 
   def handle_command(session, "closeinterface", args) do
-    case args do
-      [] ->
-        session |> Session.send_packet(RS2.Interface.Packets.clear_screen())
-
-      _ ->
-        session |> Session.send_packet(CommandEncoder.send_message("Usage: ::closeinterface"))
-    end
+    session |> Session.send_packet(RS2.Interface.Packets.clear_screen())
   end
 
   def handle_command(session, command, _) do
