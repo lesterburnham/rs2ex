@@ -3,15 +3,11 @@ defmodule RS2.Interface.Packets do
   import Packet.Encoder
 
   def open_interface(interface_id, walkable \\ false) do
-    opcode = if walkable, do: 208, else: 97
-
-    packet = %Packet{opcode: opcode}
-
     if walkable do
-      packet
+      %Packet{opcode: 208}
       |> add_leshort(interface_id)
     else
-      packet
+      %Packet{opcode: 97}
       |> add_short(interface_id)
     end
   end
