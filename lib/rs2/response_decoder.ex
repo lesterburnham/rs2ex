@@ -104,7 +104,11 @@ defmodule RS2.ResponseDecoder do
     )
   end
 
+  # normal inventory
   defp container_for_interface(3214), do: :inventory
+  # inventory while in bank?
+  defp container_for_interface(5064), do: :inventory
+  defp container_for_interface(5382), do: :bank
 
   defp container_for_interface(_), do: nil
 end
