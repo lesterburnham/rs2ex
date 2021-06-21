@@ -29,9 +29,30 @@ defmodule RS2.ResponseDecoder do
 
   # idle logout
   def decode(%Packet{opcode: 202}) do
-    Logger.info("idle logout")
+    # Logger.info("idle logout")
+    # RS2.Session.send_packet("mopar", RS2.CommandEncoder.logout())
+  end
 
-    RS2.Session.send_packet("mopar", RS2.CommandEncoder.logout())
+  # item option 1
+  def decode(%Packet{opcode: 145} = packet) do
+    with {interface_id, packet} <- cast(packet |> read_short_a(), &Overflow.ushort/1),
+         {slot, packet} <- cast(packet |> read_short_a(), &Overflow.ushort/1),
+         {id, _} <- cast(packet |> read_short_a(), &Overflow.ushort/1) do
+      case interface_id do
+        1688 ->
+          RS2.Container.Server.transfer_item(
+            {"mopar", :equipment},
+            {"mopar", :inventory},
+            slot,
+            id
+          )
+
+        _ ->
+          Logger.debug(
+            "unhandled item option 1, interface_id: #{interface_id}, slot: #{slot}, id: #{id}"
+          )
+      end
+    end
   end
 
   # item swap
@@ -85,7 +106,7 @@ defmodule RS2.ResponseDecoder do
   def decode(%Packet{opcode: 241} = packet) do
     {raw, _packet} = packet |> read_int()
 
-    time = raw >>> 20 &&& 4095
+    time = (raw >>> 20 &&& 4095) * 50
     button = raw >>> 19 &&& 1
     coords = raw &&& 0x7FFFF
     y = trunc(coords / 765)
@@ -111,4 +132,9 @@ defmodule RS2.ResponseDecoder do
   defp container_for_interface(5382), do: :bank
 
   defp container_for_interface(_), do: nil
+
+  defp cast(tuple, fun) do
+    {val, packet} = tuple
+    {fun.(val), packet}
+  end
 end

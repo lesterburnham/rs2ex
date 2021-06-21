@@ -192,16 +192,11 @@ defmodule RS2.Container do
         {:error, from_items, to_items}
 
       item ->
-        if item.id == id do
+        if item != nil && item.id == id do
           case add_item(to_items, item.id, item.quantity, to_opts) do
             {:ok, new_to_items} ->
-              case set_item(from_items, slot, nil, from_opts) do
-                {:ok, new_from_items} ->
-                  {:ok, new_from_items, new_to_items}
-
-                {:error, _} ->
-                  {:error, from_items, to_items}
-              end
+              {_, new_from_items} = set_item(from_items, slot, nil, from_opts)
+              {:ok, new_from_items, new_to_items}
 
             {:full, _} ->
               {:error, from_items, to_items}

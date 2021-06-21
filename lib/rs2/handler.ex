@@ -266,7 +266,9 @@ defmodule RS2.Handler do
           # xxx use corrected username
           Registry.register(RS2.Xyz, username, %{})
 
-          RS2.Container.Server.start_link({username, :equipment}, 14, false, [])
+          RS2.Container.Server.start_link({username, :equipment}, 14, false, [
+            {RS2.Container.Hook.Interface, %{interface_id: 1688}}
+          ])
 
           RS2.Container.Server.start_link({username, :inventory}, 28, false, [
             {RS2.Container.Hook.Interface, %{interface_id: 3214}}

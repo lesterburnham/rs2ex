@@ -59,32 +59,46 @@ defmodule RS2.Container.Server do
     |> after_container_function_hooks(container_id, :handle_container_update)
   end
 
-  def transfer_item(_from_container_id, _to_container_id, _from_slot, _id) do
-    # RS2.Container.Server.transfer_item({"mopar", :inventory}, {"mopar", :equipment}, 0, 4151, 1)
+  def transfer_item(from_container_id, to_container_id, from_slot, id) do
+    with {status, _new_from_items, new_to_items} <-
+           Agent.get_and_update(via_tuple(to_container_id), fn to_state ->
+             with {status, new_from_items, new_to_items} = ret <-
+                    Agent.get_and_update(via_tuple(from_container_id), fn from_state ->
+                      {_status, new_from_items, _new_to_items} =
+                        ret =
+                        Container.transfer_item(
+                          from_state.items,
+                          get_opts_for_state(from_state),
+                          to_state.items,
+                          get_opts_for_state(to_state),
+                          from_slot,
+                          id
+                        )
 
-    # from_items = get_items(from_container_id)
-    # # todo how to get???
-    # from_opts = nil
-    # to_items = get_items(to_container_id)
-    # # todo how to get???
-    # to_opts = nil
+                      {ret, %__MODULE__{from_state | items: new_from_items}}
+                    end),
+                  from_item_tuple <- {status, new_from_items} do
+               after_container_function_hooks(
+                 from_item_tuple,
+                 from_container_id,
+                 :handle_container_update
+               )
 
-    # container_function(container_id, &Container.transfer_item/2, binding())
-    # |> after_container_function_hooks(container_id, :handle_container_update)
+               {ret, %__MODULE__{to_state | items: new_to_items}}
+             end
+           end),
+         to_item_tuple <- {status, new_to_items} do
+      after_container_function_hooks(to_item_tuple, to_container_id, :handle_container_update)
+    end
   end
 
   defp container_function(container_id, fun, args) do
     Agent.get_and_update(via_tuple(container_id), fn state ->
-      opts = %{
-        always_stack: state.always_stack,
-        capacity: state.capacity,
-        hooks: state.hooks
-      }
-
       ret =
         apply(
           fun,
-          [state.items] ++ (args |> remove_container_id_arg() |> Keyword.values()) ++ [opts]
+          [state.items] ++
+            (args |> remove_container_id_arg() |> Keyword.values()) ++ [get_opts_for_state(state)]
         )
 
       case ret do
@@ -121,13 +135,7 @@ defmodule RS2.Container.Server do
 
   def has_room_for?(container_id, id, quantity) do
     Agent.get(via_tuple(container_id), fn state ->
-      opts = %{
-        always_stack: state.always_stack,
-        capacity: state.capacity,
-        hooks: state.hooks
-      }
-
-      Container.has_room_for?(state.items, id, quantity, opts)
+      Container.has_room_for?(state.items, id, quantity, get_opts_for_state(state))
     end)
   end
 
@@ -145,5 +153,13 @@ defmodule RS2.Container.Server do
 
   def get_items(container_id) do
     Agent.get(via_tuple(container_id), fn state -> state.items end)
+  end
+
+  defp get_opts_for_state(state) do
+    %{
+      always_stack: state.always_stack,
+      capacity: state.capacity,
+      hooks: state.hooks
+    }
   end
 end
