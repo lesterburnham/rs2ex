@@ -234,7 +234,7 @@ defmodule RS2.Handler do
           transport.close(socket)
           {:stop, :normal, state}
 
-        not Regex.match?(~r/^[a-z0-9_]+$/, username) ->
+        not RS2.Player.Username.valid_name?(username) ->
           Logger.warn("invalid username: #{username}")
           transport.send(socket, <<11>>)
           transport.close(socket)
