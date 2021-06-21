@@ -69,4 +69,20 @@ defmodule RS2.Packet.Decoder do
     [val, rest] = String.split(payload, <<10>>, parts: 2)
     {val, %Packet{packet | payload: rest}}
   end
+
+  def read_long(%Packet{payload: payload} = packet) do
+    with {l1, packet} <- read_int(packet),
+         {l2, packet} <- read_int(packet),
+         l1 <- Overflow.long(l1 &&& 0xFFFFFFFF),
+         l2 <- Overflow.long(l2 &&& 0xFFFFFFFF) do
+      {Overflow.long((l1 <<< 32) + l2), packet}
+    end
+  end
+
+   # def read_long
+   #    l = (read_int & 0xffffffff).long
+   #    l1 = (read_int & 0xffffffff).long
+   #    return ((l << 32) + l1).long
+   #  end
+
 end

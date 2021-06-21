@@ -292,6 +292,8 @@ defmodule RS2.Handler do
 
           Enum.each(CommandEncoder.send_sidebar_interfaces(), &send_packet(state, &1))
 
+          send_packet(state, CommandEncoder.friend_server_status(2))
+
           process_buffer(%{
             state
             | status: :authenticated,

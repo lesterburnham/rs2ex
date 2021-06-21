@@ -32,6 +32,7 @@ defmodule RS2.MixProject do
       {:ranch, "~> 1.8"},
       {:isaac, "~> 0.0.1"},
       {:exqlite, "~> 0.6.1"},
+      {:decimal, "~> 2.0"},
       {:excoveralls, "~> 0.10", only: :test},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false}

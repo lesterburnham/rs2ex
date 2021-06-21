@@ -62,8 +62,8 @@ defmodule RS2.Player.Username do
   defp convert_long_to_name(0, buffer), do: buffer
 
   defp convert_long_to_name(n, buffer) do
-    offset = (n / 37) |> round() |> Overflow.long()
-    char = Enum.at(@valid_characters, n - offset * 37)
+    offset = Decimal.div_int(n, 37) |> Decimal.to_integer() |> Overflow.long()
+    char = Enum.at(@valid_characters, Overflow.int(n - offset * 37))
     convert_long_to_name(offset, buffer <> char)
   end
 

@@ -55,6 +55,14 @@ defmodule RS2.ResponseDecoder do
     end
   end
 
+  # add friend
+  def decode(%Packet{opcode: 188} = packet) do
+    with {name_long, _packet} <- packet |> read_long() do
+      name = RS2.Player.Username.long_to_name(name_long)
+      Logger.debug("add friend: #{name} (#{name_long})")
+    end
+  end
+
   # item swap
   def decode(%Packet{opcode: 214} = packet) do
     with {interface_id, packet} <- packet |> read_leshort_a(),

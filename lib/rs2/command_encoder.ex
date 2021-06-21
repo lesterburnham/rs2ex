@@ -53,6 +53,11 @@ defmodule RS2.CommandEncoder do
     |> add_short(weight)
   end
 
+  def friend_server_status(status) do
+    %Packet{opcode: 221}
+    |> add_byte(status)
+  end
+
   def send_string(id, str) do
     %Packet{opcode: 126, type: :var16}
     |> add_str(str)
