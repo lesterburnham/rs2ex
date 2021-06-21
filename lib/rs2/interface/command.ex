@@ -21,11 +21,11 @@ defmodule RS2.Interface.Command do
     end
   end
 
-  def handle_command(session, "bank", args) do
+  def handle_command(session, "bank", _args) do
     session |> Session.send_packet(RS2.Interface.Packets.send_interface_inventory(5292, 5063))
   end
 
-  def handle_command(session, "closeinterface", args) do
+  def handle_command(session, "closeinterface", _args) do
     session |> Session.send_packet(RS2.Interface.Packets.clear_screen())
   end
 
