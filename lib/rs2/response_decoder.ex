@@ -63,6 +63,24 @@ defmodule RS2.ResponseDecoder do
     end
   end
 
+  # item wield 
+  # second option on some items...
+  def decode(%Packet{opcode: 41} = packet) do
+    with {id, packet} <- cast(packet |> read_short(), &Overflow.ushort/1),
+         {slot, packet} <- cast(packet |> read_short_a(), &Overflow.ushort/1),
+         {interface_id, packet} <- cast(packet |> read_short_a(), &Overflow.ushort/1) do
+      case interface_id do
+        3214 ->
+          RS2.Player.Equipment.equip_item({"mopar", :inventory}, {"mopar", :equipment}, slot, id)
+
+        _ ->
+          Logger.debug(
+            "unhandled item wield, interface_id: #{interface_id}, slot: #{slot}, id: #{id}"
+          )
+      end
+    end
+  end
+
   # item swap
   def decode(%Packet{opcode: 214} = packet) do
     with {interface_id, packet} <- packet |> read_leshort_a(),
